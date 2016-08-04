@@ -1,0 +1,37 @@
+{
+    "name": "wordcounter",
+    "displayName": "WordCounter",
+    "description": "Complete counter inspired by ST WordCount plugin",
+    "version": "1.0.0",
+    "publisher": "kirozen",
+    "icon": "logo/wordcounter.svg",
+    "engines": {
+        "vscode": "^1.0.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./extension",
+    "contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "WordCounter configuration",
+			"properties": {
+				"wordcounter.enable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Control whether WordCounter is enabled or not."
+				}
+			}
+		}
+	},
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "vscode": "^0.11.0"
+    }
+}
