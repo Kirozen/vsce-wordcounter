@@ -3,13 +3,19 @@ var vscode = require('vscode');
 
 function WordCounter() {
 
+    this.count_words = true;
+    this.count_chars = true;
+    this.count_lines = true;
+    this.readtime = true;
+    this.wpm = 200;
+
     this.update = function () {
-        if(!this.statusBarItem) {
+        if (!this.statusBarItem) {
             this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         }
 
         var editor = vscode.window.activeTextEditor;
-        if(!editor) {
+        if (!editor) {
             this.statusBarItem.hide();
             return;
         }
@@ -20,40 +26,60 @@ function WordCounter() {
         this.statusBarItem.show();
     };
 
-    this.hide = function() {
+    this.hide = function () {
         this.statusBarItem.hide();
     };
 
-    this.count = function(doc) {
+    this.count = function (doc) {
         var content = doc.getText();
         // From WordCount example
         var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
         var words = 0;
-        if(wcontent !== "") {
+        if (wcontent !== "" && (this.count_words || this.readtime)) {
             words = wcontent.split(' ').length;
         }
-        var chars = content.length;
-        var lines = doc.lineCount;
 
-        var words_text = ' Words';
-        if(words < 2) {
-            words_text = ' Word';
+        var toDisplay = [];
+
+        if (this.count_words) {
+            var words_text = ' Words';
+            if (words < 2) {
+                words_text = ' Word';
+            }
+
+            toDisplay.push(words + words_text);
         }
 
-        var chars_text = ' Chars';
-        if(chars < 2) {
-            chars_text = ' Char';
+        if (this.count_chars) {
+            var chars = content.length;
+            var chars_text = ' Chars';
+            if (chars < 2) {
+                chars_text = ' Char';
+            }
+
+            toDisplay.push(chars + chars_text);
         }
 
-        var lines_text = ' Lines';
-        if(lines < 2) {
-            lines_text = ' Line';
+        if (this.count_lines) {
+            var lines = doc.lineCount;
+            var lines_text = ' Lines';
+            if (lines < 2) {
+                lines_text = ' Line';
+            }
+
+            toDisplay.push(lines + lines_text);
         }
 
-        return words + words_text + ', ' + chars + chars_text + ', ' + lines + lines_text;
+        if (this.readtime) {
+            var m = Math.round(words / this.wpm);
+            var s = Math.round(words % this.wpm / (this.wpm / 60));
+
+            toDisplay.push("~" + m + "m " + s + "s reading time");
+        }
+        return toDisplay.join(', ');
     };
 
-    this.dispose = function() {
+    this.dispose = function () {
         this.statusBarItem.dispose();
     };
 };
@@ -62,20 +88,44 @@ exports.WordCounter = WordCounter;
 function WordCounterController(wc) {
     this.wordCounter = wc;
     this.enabled = true;
+    this.count_words = true;
+    this.count_chars = true;
+    this.count_lines = true;
+    this.readtime = true;
+    this.wpm = 200;
 
     var subscriptions = [];
 
     vscode.window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
     vscode.window.onDidChangeActiveTextEditor(this._onEventWhenChanged, this, subscriptions);
+    vscode.workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
 
-    this.reloadConfig = function() {
+    this.reloadConfig = function () {
         var configuration = vscode.workspace.getConfiguration("wordcounter");
-        if(configuration) {
-            this.enabled = configuration.get("enable");
+        if (configuration) {
+            this.enabled = configuration.get("enable", true);
+            this.count_words = configuration.get("count_words", true);
+            this.count_chars = configuration.get("count_chars", true);
+            this.count_lines = configuration.get("count_lines", true);
+            this.readtime = configuration.get("readtime", true);
+            this.wpm = configuration.get("wpm", 200);
+            // Avoid 0 and negative values
+            if (this.wpm < 1) {
+                this.wpm = 200;
+            }
         }
+        if (!this.count_words && !this.count_chars && !this.count_lines && !this.readtime) {
+            this.enabled = false;
+        }
+        this.wordCounter.count_words = this.count_words;
+        this.wordCounter.count_chars = this.count_chars;
+        this.wordCounter.count_lines = this.count_lines;
+        this.wordCounter.readtime = this.readtime;
+        this.wordCounter.wpm = this.wpm;
     };
     this.reloadConfig();
-    if(this.enabled && vscode.window.activeTextEditor) {
+
+    if (this.enabled && vscode.window.activeTextEditor) {
         this.wordCounter.update();
     }
 
@@ -86,19 +136,28 @@ function WordCounterController(wc) {
     };
 };
 
-WordCounterController.prototype._onEvent = function(event) {
-    if(this.enabled) {
+WordCounterController.prototype._onEvent = function (event) {
+    if (this.enabled) {
         this.wordCounter.update();
     }
 };
 
-WordCounterController.prototype._onEventWhenChanged = function(event) {
+WordCounterController.prototype._onEventWhenChanged = function (event) {
     this.reloadConfig();
-    if(this.enabled) {
+    if (this.enabled) {
         this.wordCounter.update();
     } else {
         this.wordCounter.hide();
     }
 };
+
+WordCounterController.prototype._onEventWhenConfChanged = function (event) {
+    this.reloadConfig();
+    if (this.enabled) {
+        this.wordCounter.update();
+    } else {
+        this.wordCounter.hide();
+    }
+}
 
 exports.WordCounterController = WordCounterController;

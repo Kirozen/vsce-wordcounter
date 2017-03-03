@@ -2,7 +2,7 @@
     "name": "wordcounter",
     "displayName": "WordCounter",
     "description": "Complete counter inspired by ST WordCount plugin",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "kirozen",
     "icon": "logo/wordcounter.svg",
     "engines": {
@@ -16,18 +16,43 @@
     ],
     "main": "./extension",
     "contributes": {
-		"configuration": {
-			"type": "object",
-			"title": "WordCounter configuration",
-			"properties": {
-				"wordcounter.enable": {
-					"type": "boolean",
-					"default": true,
-					"description": "Control whether WordCounter is enabled or not."
-				}
-			}
-		}
-	},
+        "configuration": {
+            "type": "object",
+            "title": "WordCounter configuration",
+            "properties": {
+                "wordcounter.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Control whether WordCounter is enabled or not."
+                },
+                "wordcounter.count_words": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Control whether word counter is enabled or not."
+                },
+                "wordcounter.count_chars": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Control whether char counter is enabled or not."
+                },
+                "wordcounter.count_lines": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Control whether line counter is enabled or not."
+                },
+                "wordcounter.readtime": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Control whether read time functionality is enabled or not."
+                },
+                "wordcounter.wpm": {
+                    "type": "integer",
+                    "default": 200,
+                    "description": "Words per minute"
+                }
+            }
+        }
+    },
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
