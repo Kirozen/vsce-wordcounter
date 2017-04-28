@@ -22,7 +22,7 @@ function WordCounter() {
 
         var doc = editor.document;
 
-        this.statusBarItem.text = this.count(doc);
+        this.statusBarItem.text = this.count(doc, editor.selection);
         this.statusBarItem.show();
     };
 
@@ -30,8 +30,11 @@ function WordCounter() {
         this.statusBarItem.hide();
     };
 
-    this.count = function (doc) {
+    this.count = function (doc, selection) {
         var content = doc.getText();
+        if (!selection.isEmpty) {
+            content = doc.getText(selection.with());
+        }
         // From WordCount example
         var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
         var words = 0;
@@ -62,6 +65,9 @@ function WordCounter() {
 
         if (this.count_lines) {
             var lines = doc.lineCount;
+            if (!selection.isEmpty) {
+                lines = content.split("\n").length;
+            }
             var lines_text = ' Lines';
             if (lines < 2) {
                 lines_text = ' Line';
