@@ -4,6 +4,7 @@
 * number of words
 * number of chars
 * number of lines
+* estimated read time
 
 Inspired by SublimeText WordCount plugin.
 
@@ -27,6 +28,10 @@ This extension contributes the following settings:
 Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
+
+### 1.2.0
+
+* Report stats on selected text
 
 ### 1.1.0
 
