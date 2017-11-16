@@ -6,8 +6,8 @@ function WordCounter() {
     this.count_words = true;
     this.count_chars = true;
     this.count_lines = true;
-    this.readtime = true;
-    this.wpm = 200;
+    this.readtime    = true;
+    this.wpm         = 200;
 
     this.update = function () {
         if (!this.statusBarItem) {
@@ -37,7 +37,7 @@ function WordCounter() {
         }
         // From WordCount example
         var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-        var words = 0;
+        var words    = 0;
         if (wcontent !== "" && (this.count_words || this.readtime)) {
             words = wcontent.split(' ').length;
         }
@@ -46,7 +46,7 @@ function WordCounter() {
 
         if (this.count_words) {
             var words_text = ' Words';
-            if (words < 2) {
+            if (words === 1) {
                 words_text = ' Word';
             }
 
@@ -54,9 +54,9 @@ function WordCounter() {
         }
 
         if (this.count_chars) {
-            var chars = content.length;
+            var chars      = content.length;
             var chars_text = ' Chars';
-            if (chars < 2) {
+            if (chars === 1) {
                 chars_text = ' Char';
             }
 
@@ -69,7 +69,7 @@ function WordCounter() {
                 lines = content.split("\n").length;
             }
             var lines_text = ' Lines';
-            if (lines < 2) {
+            if (lines === 1) {
                 lines_text = ' Line';
             }
 
@@ -93,12 +93,12 @@ exports.WordCounter = WordCounter;
 
 function WordCounterController(wc) {
     this.wordCounter = wc;
-    this.enabled = true;
+    this.enabled     = true;
     this.count_words = true;
     this.count_chars = true;
     this.count_lines = true;
-    this.readtime = true;
-    this.wpm = 200;
+    this.readtime    = true;
+    this.wpm         = 200;
 
     var subscriptions = [];
 
@@ -109,12 +109,12 @@ function WordCounterController(wc) {
     this.reloadConfig = function () {
         var configuration = vscode.workspace.getConfiguration("wordcounter");
         if (configuration) {
-            this.enabled = configuration.get("enable", true);
+            this.enabled     = configuration.get("enable", true);
             this.count_words = configuration.get("count_words", true);
             this.count_chars = configuration.get("count_chars", true);
             this.count_lines = configuration.get("count_lines", true);
-            this.readtime = configuration.get("readtime", true);
-            this.wpm = configuration.get("wpm", 200);
+            this.readtime    = configuration.get("readtime", true);
+            this.wpm         = configuration.get("wpm", 200);
             // Avoid 0 and negative values
             if (this.wpm < 1) {
                 this.wpm = 200;
@@ -126,8 +126,8 @@ function WordCounterController(wc) {
         this.wordCounter.count_words = this.count_words;
         this.wordCounter.count_chars = this.count_chars;
         this.wordCounter.count_lines = this.count_lines;
-        this.wordCounter.readtime = this.readtime;
-        this.wordCounter.wpm = this.wpm;
+        this.wordCounter.readtime    = this.readtime;
+        this.wordCounter.wpm         = this.wpm;
     };
     this.reloadConfig();
 

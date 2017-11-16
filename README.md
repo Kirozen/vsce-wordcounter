@@ -1,6 +1,7 @@
 # WordCounter README
 
 [VSCode](https://code.visualstudio.com/) extension which show in real time:
+
 * number of words
 * number of chars
 * number of lines
@@ -28,6 +29,10 @@ This extension contributes the following settings:
 Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
+
+### 1.2.1
+
+* Fix text on status bar ('0 Word, 0 Char' should read '0 Words, 0 Chars')
 
 ### 1.2.0
 
