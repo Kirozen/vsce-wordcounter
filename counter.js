@@ -9,7 +9,7 @@ function WordCounter() {
     this.readtime    = true;
     this.wpm         = 200;
 
-    this.update = function () {
+    this.update = function (fromSelection) {
         if (!this.statusBarItem) {
             this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         }
@@ -22,20 +22,22 @@ function WordCounter() {
 
         var doc = editor.document;
 
-        this.statusBarItem.text = this.count(doc, editor.selection);
+        if (fromSelection) {
+            if (!editor.selection.isEmpty) {
+                this.statusBarItem.text = this.countSelected(doc, editor.selection);
+            }
+        } else {
+            this.statusBarItem.text = this.countAll(doc);
+        }
         this.statusBarItem.show();
     };
+
 
     this.hide = function () {
         this.statusBarItem.hide();
     };
 
-    this.count = function (doc, selection) {
-        var content = doc.getText();
-        if (!selection.isEmpty) {
-            content = doc.getText(selection.with());
-        }
-        // From WordCount example
+    this.computeResult = function (doc, content, selection) {
         var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
         var words    = 0;
         if (wcontent !== "" && (this.count_words || this.readtime)) {
@@ -85,6 +87,15 @@ function WordCounter() {
         return toDisplay.join(', ');
     };
 
+    this.countSelected = function (doc, selection) {
+        var content = doc.getText(selection.with());
+        return this.computeResult(doc, content, selection);
+    };
+
+    this.countAll = function (doc) {
+        return this.computeResult(doc, doc.getText(), []);
+    };
+
     this.dispose = function () {
         this.statusBarItem.dispose();
     };
@@ -102,9 +113,10 @@ function WordCounterController(wc) {
 
     var subscriptions = [];
 
-    vscode.window.onDidChangeTextEditorSelection(this._onEvent, this, subscriptions);
+    vscode.window.onDidChangeTextEditorSelection(this._onEventTextEditorSelection, this, subscriptions);
     vscode.window.onDidChangeActiveTextEditor(this._onEventWhenChanged, this, subscriptions);
     vscode.workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
+    vscode.workspace.onDidChangeTextDocument(this._onEventWhenChanged, this, subscriptions);
 
     this.reloadConfig = function () {
         var configuration = vscode.workspace.getConfiguration("wordcounter");
@@ -142,16 +154,17 @@ function WordCounterController(wc) {
     };
 };
 
-WordCounterController.prototype._onEvent = function (event) {
+WordCounterController.prototype._onEventTextEditorSelection = function (event) {
     if (this.enabled) {
-        this.wordCounter.update();
+        this.wordCounter.update(true);
+    } else {
+        this.wordCounter.hide();
     }
 };
 
 WordCounterController.prototype._onEventWhenChanged = function (event) {
-    this.reloadConfig();
     if (this.enabled) {
-        this.wordCounter.update();
+        this.wordCounter.update(false);
     } else {
         this.wordCounter.hide();
     }
@@ -160,10 +173,11 @@ WordCounterController.prototype._onEventWhenChanged = function (event) {
 WordCounterController.prototype._onEventWhenConfChanged = function (event) {
     this.reloadConfig();
     if (this.enabled) {
-        this.wordCounter.update();
+        this.wordCounter.update(false);
     } else {
         this.wordCounter.hide();
     }
 }
+
 
 exports.WordCounterController = WordCounterController;
