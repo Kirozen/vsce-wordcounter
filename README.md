@@ -30,6 +30,11 @@ Calling out known issues can help limit users opening duplicate issues against y
 
 ## Release Notes
 
+### 1.2.2
+
+* Fix character count when changing line endings between lf and crlf
+* Some optimizations
+
 ### 1.2.1
 
 * Fix text on status bar ('0 Word, 0 Char' should read '0 Words, 0 Chars')
