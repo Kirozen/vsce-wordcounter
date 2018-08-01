@@ -1,12 +1,12 @@
 {
-    "name"       : "wordcounter",
+    "name": "wordcounter",
     "displayName": "WordCounter",
     "description": "Complete counter inspired by ST WordCount plugin",
-    "version"    : "1.2.2",
-    "markdown"   : "standard",
-    "publisher"  : "kirozen",
-    "icon"       : "logo/wordcounter.png",
-    "engines"    : {
+    "version": "1.2.2",
+    "markdown": "standard",
+    "publisher": "kirozen",
+    "icon": "logo/wordcounter.png",
+    "engines": {
         "vscode": "^1.0.0"
     },
     "categories": [
@@ -17,44 +17,44 @@
     ],
     "repository": {
         "type": "git",
-        "url" : "https://github.com/Kirozen/vsce-wordcounter.git"
+        "url": "https://github.com/Kirozen/vsce-wordcounter.git"
     },
-    "bugs"       : "https://github.com/Kirozen/vsce-wordcounter/issues",
-    "homepage"   : "https://github.com/Kirozen/vsce-wordcounter/blob/master/README.md",
-    "main"       : "./extension",
+    "bugs": "https://github.com/Kirozen/vsce-wordcounter/issues",
+    "homepage": "https://github.com/Kirozen/vsce-wordcounter/blob/master/README.md",
+    "main": "./extension",
     "contributes": {
         "configuration": {
-            "type"      : "object",
-            "title"     : "WordCounter configuration",
+            "type": "object",
+            "title": "WordCounter configuration",
             "properties": {
                 "wordcounter.enable": {
-                    "type"       : "boolean",
-                    "default"    : true,
+                    "type": "boolean",
+                    "default": true,
                     "description": "Control whether WordCounter is enabled or not."
                 },
                 "wordcounter.count_words": {
-                    "type"       : "boolean",
-                    "default"    : true,
+                    "type": "boolean",
+                    "default": true,
                     "description": "Control whether word counter is enabled or not."
                 },
                 "wordcounter.count_chars": {
-                    "type"       : "boolean",
-                    "default"    : true,
+                    "type": "boolean",
+                    "default": true,
                     "description": "Control whether char counter is enabled or not."
                 },
                 "wordcounter.count_lines": {
-                    "type"       : "boolean",
-                    "default"    : true,
+                    "type": "boolean",
+                    "default": true,
                     "description": "Control whether line counter is enabled or not."
                 },
                 "wordcounter.readtime": {
-                    "type"       : "boolean",
-                    "default"    : true,
+                    "type": "boolean",
+                    "default": true,
                     "description": "Control whether read time functionality is enabled or not."
                 },
                 "wordcounter.wpm": {
-                    "type"       : "integer",
-                    "default"    : 200,
+                    "type": "integer",
+                    "default": 200,
                     "description": "Words per minute"
                 }
             }
