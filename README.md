@@ -7,6 +7,8 @@
 * number of lines
 * estimated read time
 
+Support multiple selection.
+
 Inspired by SublimeText WordCount plugin.
 
 ## Requirements
@@ -29,6 +31,12 @@ This extension contributes the following settings:
 Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
+
+### 1.3.0
+
+* Fix #6: Support multiple selections
+* Fix #7: can't see total word count after selecting then deselecting text
+* Fix #8: reading time below 1 min
 
 ### 1.2.2
 
