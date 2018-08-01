@@ -1,6 +1,12 @@
 "use strict";
 var vscode = require('vscode');
 
+Array.prototype.unique = function () {
+    return this.filter(function (value, index, self) {
+        return self.indexOf(value) === index;
+    });
+}
+
 function WordCounter() {
 
     this.count_words = true;
@@ -23,10 +29,14 @@ function WordCounter() {
         var doc = editor.document;
 
         if (fromSelection) {
-            if (!editor.selection.isEmpty) {
-                this.statusBarItem.text = this.countSelected(doc, editor.selection);
+            if (editor.selections.length == 1) {
+                if (!editor.selection.isEmpty) {
+                    this.statusBarItem.text = this.countSelectedSimple(doc, editor.selection);
+                } else {
+                    this.statusBarItem.text = this.countAll(doc);
+                }
             } else {
-                this.statusBarItem.text = this.countAll(doc);
+                this.statusBarItem.text = this.countSelectedMultiple(doc, editor.selections);
             }
         } else {
             this.statusBarItem.text = this.countAll(doc);
@@ -39,7 +49,7 @@ function WordCounter() {
         this.statusBarItem.hide();
     };
 
-    this.computeResult = function (doc, content, selection) {
+    this.computeResult = function (doc, content, hasSelectedText) {
         var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
         var words = 0;
         if (wcontent !== "" && (this.count_words || this.readtime)) {
@@ -69,7 +79,7 @@ function WordCounter() {
 
         if (this.count_lines) {
             var lines = doc.lineCount;
-            if (!selection.isEmpty) {
+            if (hasSelectedText) {
                 lines = content.split("\n").length;
             }
             var lines_text = ' Lines';
@@ -90,13 +100,86 @@ function WordCounter() {
         return toDisplay.join(', ');
     };
 
-    this.countSelected = function (doc, selection) {
+    this.countSelectedSimple = function (doc, selection) {
         var content = doc.getText(selection.with());
-        return this.computeResult(doc, content, selection);
+        return this.computeResult(doc, content, true);
+    };
+
+    this.computeResultMulti = function (doc, selections) {
+        var words = 0;
+        var length = 0;
+        var lines = [];
+        selections.forEach(selection => {
+            var content = doc.getText(selection.with());
+            var wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+            if (wcontent !== "" && (this.count_words || this.readtime)) {
+                words += wcontent.split(' ').length;
+            }
+
+            if (this.count_chars) {
+                length += content.length;
+            }
+
+            if (this.count_lines) {
+                if (selection.isSingleLine) {
+                    lines.push(selection.start.line);
+                } else {
+                    var start = selection.start.line;
+                    var end = selection.end.line;
+                    for (var i = start; i <= end; i++) {
+                        lines.push(i);
+                    }
+                }
+            }
+        });
+
+
+        var toDisplay = [];
+
+        if (this.count_words) {
+            var words_text = ' Words';
+            if (words === 1) {
+                words_text = ' Word';
+            }
+
+            toDisplay.push(words + words_text);
+        }
+
+        if (this.count_chars) {
+            var chars_text = ' Chars';
+            if (length === 1) {
+                chars_text = ' Char';
+            }
+
+            toDisplay.push(length + chars_text);
+        }
+
+        if (this.count_lines) {
+            lines = lines.unique();
+            var lines_text = ' Lines';
+            if (lines.length === 1) {
+                lines_text = ' Line';
+            }
+
+            toDisplay.push(lines.length + lines_text);
+        }
+
+        if (this.readtime) {
+            const div = words / this.wpm;
+            const m = Math.floor(div);
+            const s = Math.round(60 * (div - m));
+
+            toDisplay.push("~" + m + "m " + s + "s reading time");
+        }
+        return toDisplay.join(', ');
+    };
+
+    this.countSelectedMultiple = function (doc, selections) {
+        return this.computeResultMulti(doc, selections);
     };
 
     this.countAll = function (doc) {
-        return this.computeResult(doc, doc.getText(), []);
+        return this.computeResult(doc, doc.getText(), false);
     };
 
     this.dispose = function () {
