@@ -25,6 +25,8 @@ function WordCounter() {
         if (fromSelection) {
             if (!editor.selection.isEmpty) {
                 this.statusBarItem.text = this.countSelected(doc, editor.selection);
+            } else {
+                this.statusBarItem.text = this.countAll(doc);
             }
         } else {
             this.statusBarItem.text = this.countAll(doc);
