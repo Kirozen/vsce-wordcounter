@@ -25,12 +25,25 @@ This extension contributes the following settings:
 * `wordcounter.count_lines`: enable/disable line counter (true/false)
 * `wordcounter.readtime`: enable/disable read time functionality (true/false)
 * `wordcounter.wpm`: words per minute (default=200)
+* `wordcounter.text.word`: text for "Word"
+* `wordcounter.text.words`: text for "Words"
+* `wordcounter.text.line`: text for "Line"
+* `wordcounter.text.lines`: text for "Lines"
+* `wordcounter.text.char`: text for "Char"
+* `wordcounter.text.chars`: text for "Chars"
+* `wordcounter.text.reading`: text for "reading time"
+* `wordcounter.text.delimiter`: text for ", "
+* `wordcounter.text.word_delimiter`: text for spacing between items " "
 
 ## Known Issues
 
 Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
+
+### 1.4.0
+ * Rewrite to es5, following standardjs
+ * Added the configuration option for choosing text
 
 ### 1.3.0
 
