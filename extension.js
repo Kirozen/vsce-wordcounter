@@ -1,16 +1,16 @@
-'use strict';
-var vscode = require('vscode');
-var command = require('./counter');
+const { WordCounter, WordCounterController } = require('./wordCounter.js')
 
-function activate(context) {
+function activate (context) {
+  const wordCounter = new WordCounter()
+  const controller = new WordCounterController(wordCounter)
 
-    var wordCounter = new command.WordCounter();
-    var controller = new command.WordCounterController(wordCounter);
-
-    context.subscriptions.push(controller);
-    context.subscriptions.push(wordCounter);
+  context.subscriptions.push(controller)
+  context.subscriptions.push(wordCounter)
 }
-exports.activate = activate;
 
-function deactivate() {}
-exports.deactivate = deactivate;
+function deactivate () {
+
+}
+
+exports.activate = activate
+exports.deactivate = deactivate
