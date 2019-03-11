@@ -71,11 +71,9 @@ class WordCounter {
   }
 
   wordCount (content) {
-    const wcontent = content.replace(/(< ([^>]+)<)/g, '').replace(/\s+/g, ' ').replace(/^\s\s*/, '').replace(/\s\s*$/, '')
-
     let words = 0
-    if (wcontent !== '' && (this.count_words || this.readtime)) {
-      words = wcontent.split(' ').length
+    if (content && (this.count_words || this.readtime)) {
+      words = content.match(/\w+/g).length
     }
     return words
   }
