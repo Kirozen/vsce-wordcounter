@@ -6,7 +6,7 @@
   "markdown": "standard",
   "publisher": "kirozen",
   "icon": "logo/wordcounter.png",
-  "license": "",
+  "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
     "vscode": "^1.0.0"
   },
