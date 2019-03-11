@@ -37,13 +37,18 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+None
 
 ## Release Notes
 
+### 1.5.0
+
+* Fix word counting
+
 ### 1.4.0
- * Rewrite to es5, following standardjs
- * Added the configuration option for choosing text
+
+* Rewrite to es5, following standardjs
+* Added the configuration option for choosing text
 
 ### 1.3.0
 
