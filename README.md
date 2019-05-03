@@ -41,6 +41,11 @@ None
 
 ## Release Notes
 
+### 1.6.0
+
+* Update dependencies
+* Fix #14: Hyphenated words / contractions counted as two words
+
 ### 1.5.0
 
 * Fix word counting
