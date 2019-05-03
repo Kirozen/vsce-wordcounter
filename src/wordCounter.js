@@ -73,7 +73,7 @@ class WordCounter {
   wordCount (content) {
     let words = 0
     if (content && (this.count_words || this.readtime)) {
-      words = content.match(/\w+/g).length
+      words = content.match(/\w+([-']?\w+)*/g).length
     }
     return words
   }
