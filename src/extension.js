@@ -1,16 +1,22 @@
-const { WordCounter, WordCounterController } = require('./wordCounter.js')
+import { WordCounter, WordCounterController } from './wordCounter.js';
 
-function activate (context) {
-  const wordCounter = new WordCounter()
-  const controller = new WordCounterController(wordCounter)
+function activate(context) {
+  const wordCounter = new WordCounter();
+  const controller = new WordCounterController(wordCounter);
 
-  context.subscriptions.push(controller)
-  context.subscriptions.push(wordCounter)
+  context.subscriptions.push(controller);
+  context.subscriptions.push(wordCounter);
 }
 
-function deactivate () {
+function deactivate() {
 
 }
 
-exports.activate = activate
-exports.deactivate = deactivate
+const _activate = activate;
+export {
+  _activate as activate
+};
+const _deactivate = deactivate;
+export {
+  _deactivate as deactivate
+};
