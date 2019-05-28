@@ -41,6 +41,12 @@ None
 
 ## Release Notes
 
+### 1.7.0
+
+* Fix regex
+* ES6
+* Reduce extension size
+
 ### 1.6.0
 
 * Update dependencies
@@ -83,3 +89,9 @@ None
 ### 1.0.0
 
 Initial release of WordCounter
+
+## Contributors
+
+* Etienne Faisant
+* Jonathan T L Lee
+* Artboomy
