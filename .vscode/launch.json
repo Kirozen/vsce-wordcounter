@@ -1,8 +1,7 @@
 // A launch configuration that launches the extension inside a new window
 {
   "version": "0.1.0",
-  "configurations": [
-    {
+  "configurations": [{
       "name": "Launch Extension",
       "type": "extensionHost",
       "request": "launch",
@@ -21,11 +20,7 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/src/test"
-      ],
-      "stopOnEntry": false,
-      "outFiles": [
-        "${workspaceFolder}/out/test/**/*.js"
+        "--extensionTestsPath=${workspaceFolder}/test"
       ]
     }
   ]
