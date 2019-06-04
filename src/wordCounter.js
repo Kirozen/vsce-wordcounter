@@ -91,7 +91,7 @@ class WordCounter {
       for (let i = iStart; i <= iEnd; i++) {
         setLines.add(i);
       }
-    })
+    });
 
     const aDisplay = this.toDisplay({
       words,
@@ -113,9 +113,9 @@ class WordCounterController {
 
     const subscriptions = [];
     window.onDidChangeTextEditorSelection(this._onEventTextEditorSelection, this, subscriptions);
-    window.onDidChangeActiveTextEditor(this._onEventWhenChanged, this, subscriptions);
+    window.onDidChangeActiveTextEditor(this._onDidChangeActiveTextEditor, this, subscriptions);
     workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
-    workspace.onDidChangeTextDocument(this._onEventWhenChanged, this, subscriptions);
+    workspace.onDidChangeTextDocument(this._onEventChangeTextDocument, this, subscriptions);
 
     if (this.enabled && window.activeTextEditor) {
       this.wordCounter.update();
@@ -125,6 +125,20 @@ class WordCounterController {
     this.dispose = function () {
       this.disposable.dispose();
     }
+  }
+
+  _onEventChangeTextDocument(event) {
+    this._onEventWhenChanged(event);
+  }
+
+  _onDidChangeActiveTextEditor(event) {
+    if (this.languages !== null && event !== undefined) {
+      if (!this.languages.includes(event.document.languageId)) {
+        this.wordCounter.hide();
+        return;
+      }
+    }
+    this._onEventWhenChanged(event);
   }
 
   _onEventWhenChanged(event) {
@@ -153,6 +167,7 @@ class WordCounterController {
     const outConfig = {};
     const aConfig = [
       'enabled',
+      'languages',
       'count_words',
       'count_chars',
       'count_lines',
@@ -168,12 +183,12 @@ class WordCounterController {
       'text.delimiter',
       'text.readingtime'
     ];
-    aConfig.forEach((sKey) => {
-      _set(outConfig, sKey, configuration.get(sKey));
-    });
+    aConfig.forEach(sKey => _set(outConfig, sKey, configuration.get(sKey)));
+
     if (outConfig.wpm < 1) {
       outConfig.wpm = 200;
     }
+
     if (!outConfig.count_words && !outConfig.count_chars && !outConfig.count_lines && !outConfig.readtime) {
       outConfig.enabled = false;
     }
