@@ -1,8 +1,8 @@
 {
   "name": "wordcounter",
   "displayName": "WordCounter",
-  "description": "Complete counter inspired by ST WordCount plugin",
-  "version": "1.8.0",
+  "description": "Complete word counter inspired by ST WordCount plugin",
+  "version": "1.8.1",
   "markdown": "standard",
   "publisher": "kirozen",
   "icon": "logo/wordcounter.png",
