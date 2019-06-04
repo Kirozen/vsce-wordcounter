@@ -2,7 +2,7 @@
   "name": "wordcounter",
   "displayName": "WordCounter",
   "description": "Complete counter inspired by ST WordCount plugin",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "markdown": "standard",
   "publisher": "kirozen",
   "icon": "logo/wordcounter.png",
@@ -32,6 +32,11 @@
           "type": "boolean",
           "default": true,
           "description": "Control whether WordCounter is enabled or not."
+        },
+        "wordcounter.languages": {
+          "type": ["array", "null"],
+          "default": null,
+          "description": "Specifies languages which enable WordCounter, or null to enable for all."
         },
         "wordcounter.count_words": {
           "type": "boolean",
@@ -96,7 +101,7 @@
         "wordcounter.text.delimiter": {
           "type": "string",
           "default": ", ",
-          "descriptions": "Delimiter to separte items"
+          "descriptions": "Delimiter to separate items"
         },
         "wordcounter.text.readingtime": {
           "type": "string",

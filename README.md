@@ -23,6 +23,7 @@ This extension contributes the following settings:
 * `wordcounter.count_words`: enable/disable word counter (true/false)
 * `wordcounter.count_chars`: enable/disable char counter (true/false)
 * `wordcounter.count_lines`: enable/disable line counter (true/false)
+* `wordcounter.languages`: enable this extension for these specific languages, or all if null (default=null, list of supported languages)
 * `wordcounter.readtime`: enable/disable read time functionality (true/false)
 * `wordcounter.wpm`: words per minute (default=200)
 * `wordcounter.text.word`: text for "Word"
@@ -40,6 +41,10 @@ This extension contributes the following settings:
 None
 
 ## Release Notes
+
+### 1.8.0
+
+* Add languages option
 
 ### 1.7.0
 
