@@ -117,7 +117,7 @@ class WordCounterController {
     workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
     workspace.onDidChangeTextDocument(this._onEventChangeTextDocument, this, subscriptions);
 
-    if (this.enabled && window.activeTextEditor) {
+    if (this.enabled && window.activeTextEditor && this._languageIsSelected(window.activeTextEditor.document.languageId)) {
       this.wordCounter.update();
     }
     this.disposable = Disposable.from.apply(Disposable, subscriptions);
@@ -127,39 +127,45 @@ class WordCounterController {
     }
   }
 
+  _languageIsSelected(lang) {
+    return this.languages === null || (lang !== undefined && this.languages.includes(lang));
+  }
+
+  _couldUpdate(event) {
+    return this.enabled && this._languageIsSelected(event === undefined ? undefined : event.document.languageId);
+  }
+
   _onEventChangeTextDocument(event) {
-    this._onEventWhenChanged(event);
+    if (this._couldUpdate(event)) {
+      this.wordCounter.update(false);
+    } else {
+      this.wordCounter.hide();
+    }
   }
 
   _onDidChangeActiveTextEditor(event) {
-    if (this.languages !== null && event !== undefined) {
-      if (!this.languages.includes(event.document.languageId)) {
-        this.wordCounter.hide();
-        return;
-      }
-    }
-    this._onEventWhenChanged(event);
-  }
-
-  _onEventWhenChanged(event) {
-    if (this.enabled) {
+    if (this._couldUpdate(event)) {
       this.wordCounter.update(false);
-      return;
+    } else {
+      this.wordCounter.hide();
     }
-    this.wordCounter.hide();
   }
 
   _onEventTextEditorSelection(event) {
-    if (this.enabled) {
+    if (this._couldUpdate(event)) {
       this.wordCounter.update(true);
-      return;
+    } else {
+      this.wordCounter.hide();
     }
-    this.wordCounter.hide();
   }
 
   _onEventWhenConfChanged(event) {
     this.reloadConfig();
-    this._onEventWhenChanged();
+    if (this._couldUpdate(event)) {
+      this.wordCounter.update(false);
+    } else {
+      this.wordCounter.hide();
+    }
   }
 
   reloadConfig() {

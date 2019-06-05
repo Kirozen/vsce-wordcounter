@@ -42,6 +42,10 @@ None
 
 ## Release Notes
 
+### 1.8.2
+
+* Fix languages parameter issue
+
 ### 1.8.0
 
 * Add languages option
