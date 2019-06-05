@@ -5,6 +5,7 @@
 * number of words
 * number of chars
 * number of lines
+* number of paragraphs
 * estimated read time
 
 Support multiple selection.
@@ -23,6 +24,7 @@ This extension contributes the following settings:
 * `wordcounter.count_words`: enable/disable word counter (true/false)
 * `wordcounter.count_chars`: enable/disable char counter (true/false)
 * `wordcounter.count_lines`: enable/disable line counter (true/false)
+* `wordcounter.count_paragraphs`: enable/disable paragraph counter (true/false)
 * `wordcounter.languages`: enable this extension for these specific languages, or all if null (default=null, list of supported languages)
 * `wordcounter.readtime`: enable/disable read time functionality (true/false)
 * `wordcounter.wpm`: words per minute (default=200)
@@ -30,6 +32,8 @@ This extension contributes the following settings:
 * `wordcounter.text.words`: text for "Words"
 * `wordcounter.text.line`: text for "Line"
 * `wordcounter.text.lines`: text for "Lines"
+* `wordcounter.text.paragraph`: text for "Paragraph"
+* `wordcounter.text.paragraphs`: text for "Paragraphs"
 * `wordcounter.text.char`: text for "Char"
 * `wordcounter.text.chars`: text for "Chars"
 * `wordcounter.text.reading`: text for "reading time"
@@ -41,6 +45,11 @@ This extension contributes the following settings:
 None
 
 ## Release Notes
+
+### 1.9.0
+
+* Fix #5: Add a counter for paragraphs
+* Small optimizations
 
 ### 1.8.2
 
