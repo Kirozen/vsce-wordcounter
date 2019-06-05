@@ -1,6 +1,6 @@
 import _assign from 'lodash/assign.js';
 import _set from 'lodash/set.js';
-import { Disposable, StatusBarAlignment, window, workspace } from 'vscode';
+import { Disposable, EndOfLine, StatusBarAlignment, window, workspace } from 'vscode';
 
 class WordCounter {
   update(fromSelection) {
@@ -36,7 +36,7 @@ class WordCounter {
   }
 
   toDisplay(oIn) {
-    const things = ['word', 'char', 'line'];
+    const things = ['word', 'char', 'line', 'paragraph'];
     const out = [];
     things.forEach(sKey => {
       if (this[`count_${sKey}s`]) {
@@ -45,12 +45,14 @@ class WordCounter {
         out.push(`${val}${this.text.word_delimiter}${this.text[textKey]}`);
       }
     });
+
     if (this.readtime) {
       const div = oIn.words / this.wpm;
       const m = Math.floor(div);
       const s = Math.round(60 * (div - m));
       out.push(`~${m}m${s}s ${this.text.readingtime}`);
     }
+
     return out;
   }
 
@@ -58,15 +60,28 @@ class WordCounter {
     const aDisplay = this.toDisplay({
       words: this.wordCount(content),
       chars: content.length,
-      lines: hasSelectedText ?
-        content.split('\n').length : doc.lineCount
+      lines: this.lineCount(content, hasSelectedText, doc),
+      paragraphs: this.paragraphCount(content, doc.eol)
     });
+
     return aDisplay.join(this.text.delimiter);
   }
 
   countSelectedSimple(doc, selection) {
     var content = doc.getText(selection.with());
     return this.computeResult(doc, content, true);
+  }
+
+  lineCount(content, hasSelectedText, doc) {
+    let lines = 1;
+    if (content && this.count_lines) {
+      if (hasSelectedText) {
+        lines = content.split('\n').length;
+      } else {
+        lines = doc.lineCount;
+      }
+    }
+    return lines;
   }
 
   wordCount(content) {
@@ -77,26 +92,41 @@ class WordCounter {
     return words;
   }
 
+  paragraphCount(content, linefeed) {
+    let paragraphs = 0;
+    if (content && this.count_paragraphs) {
+      if (linefeed === EndOfLine.CRLF) {
+        paragraphs = content.split(/\r\n[\r\n]+/).filter(p => p.length > 0).length;
+      } else {
+        paragraphs = content.split(/\n\n+/).filter(p => p.length > 0).length;
+      }
+    }
+    return paragraphs;
+  }
+
   countSelectedMultiple(doc, selections) {
     let words = 0;
     let chars = 0;
-    const setLines = new Set();
+    let paragraphs = 0;
+    let lines = 0;
     selections.forEach(selection => {
       const content = doc.getText(selection.with());
       words += this.wordCount(content);
+      paragraphs += this.paragraphCount(content, doc.eol);
       chars += content.length;
 
-      const iStart = selection.start.line;
-      const iEnd = selection.isSingleLine ? iStart + 1 : selection.end.line;
-      for (let i = iStart; i <= iEnd; i++) {
-        setLines.add(i);
+      if (this.count_lines) {
+        const iStart = selection.start.line;
+        const iEnd = selection.isSingleLine ? iStart + 1 : selection.end.line;
+        lines = iEnd - iStart + 1;
       }
     });
 
     const aDisplay = this.toDisplay({
-      words,
-      chars,
-      lines: setLines.size
+      words: words,
+      chars: chars,
+      lines: lines,
+      paragraphs: paragraphs
     });
     return aDisplay.join(this.text.delimiter);
   }
@@ -177,6 +207,7 @@ class WordCounterController {
       'count_words',
       'count_chars',
       'count_lines',
+      'count_paragraphs',
       'readtime',
       'wpm',
       'text.word',
@@ -185,6 +216,8 @@ class WordCounterController {
       'text.chars',
       'text.line',
       'text.lines',
+      'text.paragraph',
+      'text.paragraphs',
       'text.word_delimiter',
       'text.delimiter',
       'text.readingtime'
