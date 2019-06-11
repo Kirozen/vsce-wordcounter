@@ -74,26 +74,31 @@ class WordCounter {
 
   lineCount(content, hasSelectedText, doc) {
     let lines = 1;
-    if (content && this.count_lines) {
+
+    if (this.count_lines) {
       if (hasSelectedText) {
         lines = content.split('\n').length;
       } else {
         lines = doc.lineCount;
       }
     }
+
     return lines;
   }
 
   wordCount(content) {
     let words = 0;
+
     if (content && (this.count_words || this.readtime)) {
       words = content.match(/[\wаА-яЯёЁ]+([-']?[\wаА-яЯёЁ]+)*/g).length;
     }
+
     return words;
   }
 
   paragraphCount(content, linefeed) {
     let paragraphs = 0;
+
     if (content && this.count_paragraphs) {
       if (linefeed === EndOfLine.CRLF) {
         paragraphs = content.split(/\r\n[\r\n]+/).filter(p => p.length > 0).length;
@@ -101,6 +106,7 @@ class WordCounter {
         paragraphs = content.split(/\n\n+/).filter(p => p.length > 0).length;
       }
     }
+
     return paragraphs;
   }
 
@@ -109,16 +115,28 @@ class WordCounter {
     let chars = 0;
     let paragraphs = 0;
     let lines = 0;
+
     selections.forEach(selection => {
       const content = doc.getText(selection.with());
-      words += this.wordCount(content);
-      paragraphs += this.paragraphCount(content, doc.eol);
-      chars += content.length;
+
+      if (this.count_words) {
+        words += this.wordCount(content);
+      }
+
+      if (this.count_paragraphs) {
+        paragraphs += this.paragraphCount(content, doc.eol);
+      }
+
+      if (this.count_chars) {
+        chars += content.length;
+      }
 
       if (this.count_lines) {
-        const iStart = selection.start.line;
-        const iEnd = selection.isSingleLine ? iStart + 1 : selection.end.line;
-        lines = iEnd - iStart + 1;
+        if (selection.isSingleLine) {
+          lines++;
+        } else {
+          lines += selection.end.line - selection.start.line + 1;
+        }
       }
     });
 
@@ -128,6 +146,7 @@ class WordCounter {
       lines: lines,
       paragraphs: paragraphs
     });
+
     return aDisplay.join(this.text.delimiter);
   }
 
