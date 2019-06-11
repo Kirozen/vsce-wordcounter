@@ -166,7 +166,7 @@ class WordCounterController {
     workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
     workspace.onDidChangeTextDocument(this._onEventChangeTextDocument, this, subscriptions);
 
-    if (this.enabled && window.activeTextEditor && this._languageIsSelected(window.activeTextEditor.document.languageId)) {
+    if (window.activeTextEditor && this._couldUpdate()) {
       this.wordCounter.update();
     }
     this.disposable = Disposable.from.apply(Disposable, subscriptions);
@@ -176,16 +176,13 @@ class WordCounterController {
     }
   }
 
-  _languageIsSelected(lang) {
-    return this.languages === null || (lang !== undefined && this.languages.includes(lang));
-  }
 
-  _couldUpdate(event) {
-    return this.enabled && this._languageIsSelected(event === undefined ? undefined : event.document.languageId);
+  _couldUpdate() {
+    return this.enabled && (this.languages === null || this.languages.includes(window.activeTextEditor.document.languageId));
   }
 
   _onEventChangeTextDocument(event) {
-    if (this._couldUpdate(event)) {
+    if (this._couldUpdate()) {
       this.wordCounter.update(false);
     } else {
       this.wordCounter.hide();
@@ -193,7 +190,7 @@ class WordCounterController {
   }
 
   _onDidChangeActiveTextEditor(event) {
-    if (this._couldUpdate(event)) {
+    if (this._couldUpdate()) {
       this.wordCounter.update(false);
     } else {
       this.wordCounter.hide();
@@ -201,7 +198,7 @@ class WordCounterController {
   }
 
   _onEventTextEditorSelection(event) {
-    if (this._couldUpdate(event)) {
+    if (this._couldUpdate()) {
       this.wordCounter.update(true);
     } else {
       this.wordCounter.hide();
@@ -210,7 +207,7 @@ class WordCounterController {
 
   _onEventWhenConfChanged(event) {
     this.reloadConfig();
-    if (this._couldUpdate(event)) {
+    if (this._couldUpdate()) {
       this.wordCounter.update(false);
     } else {
       this.wordCounter.hide();
