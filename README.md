@@ -46,6 +46,11 @@ None
 
 ## Release Notes
 
+### 1.9.1
+
+* Fix #18: Counting words by highlighted selection is not working
+* Fix line count in multi selection
+
 ### 1.9.0
 
 * Fix #5: Add a counter for paragraphs
