@@ -12,9 +12,10 @@ Support multiple selection.
 
 Inspired by SublimeText WordCount plugin.
 
-## Requirements
+## Dependencies
 
-It does not require anything ;-)
+* lodash
+* XRegExp
 
 ## Extension Settings
 
@@ -45,6 +46,11 @@ This extension contributes the following settings:
 None
 
 ## Release Notes
+
+### 1.9.2
+
+* Fix #19: The accented words counted as two words
+* Handle correctly unicode
 
 ### 1.9.1
 
