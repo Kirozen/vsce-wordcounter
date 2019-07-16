@@ -15,7 +15,6 @@ Inspired by SublimeText WordCount plugin.
 ## Dependencies
 
 * lodash
-* XRegExp
 
 ## Extension Settings
 
@@ -43,9 +42,14 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-None
+In multi-selection mode, paragraphs are not well counted => #21
 
 ## Release Notes
+
+### 1.9.3
+
+* Fix #20: Numbers are not counted as words when they should be
+* Update dependencies
 
 ### 1.9.2
 
