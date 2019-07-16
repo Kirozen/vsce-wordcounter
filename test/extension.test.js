@@ -54,4 +54,10 @@ suite('Wordcounter.wordCount()', function () {
     strictEqual(counter.wordCount(`д'Артаньян`), 1);
   });
 
+  test('number', function () {
+    strictEqual(counter.wordCount('They sell 75 different products.'), 5);
+    strictEqual(counter.wordCount('Account 12345678, Sort Code 01-02-03'), 5);
+    strictEqual(counter.wordCount('Item 06: 87,334.67'), 3);
+  });
+
 });

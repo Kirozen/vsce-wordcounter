@@ -1,12 +1,11 @@
 import _assign from 'lodash/assign.js';
 import _set from 'lodash/set.js';
 import { Disposable, EndOfLine, StatusBarAlignment, window, workspace } from 'vscode';
-import XRegExp from 'xregexp';
 
 
 class WordCounter {
   constructor() {
-    this.wordRegEx = XRegExp('\\pL+([-\']?\\pL+)*');
+    this.wordRegEx = /[\S]+/g;
   }
 
   update(fromSelection) {
@@ -96,7 +95,7 @@ class WordCounter {
     let words = 0;
 
     if (content && (this.count_words || this.readtime)) {
-      words = XRegExp.match(content, this.wordRegEx, 'all').length;
+      words = content.match(this.wordRegEx).length;
     }
     return words;
   }
