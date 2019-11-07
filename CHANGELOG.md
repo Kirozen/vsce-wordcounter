@@ -1,6 +1,6 @@
 # Change Log
 
-## [unreleased]
+## 2.1.0
 
 * Fix #25: Counting of paragraphs in new, empty file
 * Fix #26: option to count end of line characters as characters
