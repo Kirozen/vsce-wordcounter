@@ -158,17 +158,13 @@ export class WordCounter {
   }
 
   lineCount(content: string, hasSelectedText: boolean, doc: TextDocument) {
-    let lines = 1;
-
     if (this.config.count_lines) {
       if (hasSelectedText) {
-        lines = content.split('\n').length;
-      } else {
-        lines = doc.lineCount;
+        return content.split('\n').length;
       }
+      return doc.lineCount;
     }
-
-    return lines;
+    return 1;
   }
 
   wordCount(content: string) {
