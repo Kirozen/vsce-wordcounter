@@ -3,7 +3,8 @@
 ## [unreleased]
 
 * Fix #25: Counting of paragraphs in new, empty file
-* Fix #26: Feature request: option to count end of line characters as characters
+* Fix #26: option to count end of line characters as characters
+* Reduce number of calls to update()
 
 ## 2.0.0
 
