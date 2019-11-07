@@ -1,6 +1,6 @@
 # Change Log
 
-## [unreleased]
+## 2.0.0
 
 * Migrate project from javascript to typescript
 * Fix #22: Multiple blank lines get counted as 1 Line
