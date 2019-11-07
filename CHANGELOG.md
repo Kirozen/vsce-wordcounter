@@ -3,6 +3,9 @@
 ## [unreleased]
 
 * Migrate project from javascript to typescript
+* Fix #22: Multiple blank lines get counted as 1 Line
+* Fix #23: Non-words are counted as words
+* Add new property **simple_wordcount** to add possibility to switch between 2 algorithms for word counting
 
 ## 1.9.3
 

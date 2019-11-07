@@ -12,10 +12,6 @@ Support multiple selection.
 
 Inspired by SublimeText WordCount plugin.
 
-## Dependencies
-
-* lodash
-
 ## Extension Settings
 
 This extension contributes the following settings:
@@ -25,6 +21,7 @@ This extension contributes the following settings:
 * `wordcounter.count_chars` : enable/disable char counter (true/false)
 * `wordcounter.count_lines` : enable/disable line counter (true/false)
 * `wordcounter.count_paragraphs` : enable/disable paragraph counter (true/false)
+* `wordcounter.simple_wordcount` : enable/disable simple word count algorithm (true/false)
 * `wordcounter.languages` : enable this extension for these specific languages, or all if null (default=null, list of supported languages)
 * `wordcounter.readtime` : enable/disable read time functionality (true/false)
 * `wordcounter.wpm` : words per minute (default=200)
