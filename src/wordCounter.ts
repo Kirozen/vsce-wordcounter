@@ -46,6 +46,14 @@ interface DisplayData {
 export class WordCounter {
   wordRegEx: RegExp = /[\S]+/g;
   wordRegExSub: RegExp = /[\w\u0370-\uffef]+/;
+  crlfRE = {
+    split: /\r\n[\r\n]+/,
+    replace: /\r\n/
+  };
+  lfRE = {
+    split: /\n\n+/,
+    replace: /\n/
+  };
   statusBarItem: StatusBarItem;
   text: TextConfig = {} as TextConfig;
   config: WordCounterConfiguration = {} as WordCounterConfiguration;
@@ -171,17 +179,15 @@ export class WordCounter {
   }
 
   paragraphCount(content: string, linefeed: EndOfLine) {
-    let paragraphs = 0;
-
     if (content && this.config.count_paragraphs) {
-      if (linefeed === EndOfLine.CRLF) {
-        paragraphs = content.split(/\r\n[\r\n]+/).filter(p => p.length > 0).length;
-      } else {
-        paragraphs = content.split(/\n\n+/).filter(p => p.length > 0).length;
-      }
+      const re = linefeed === EndOfLine.CRLF ? this.crlfRE : this.lfRE;
+      return content
+        .split(re.split)
+        .map(p => p.replace(re.replace, ''))
+        .filter(p => p.length > 0)
+        .length;
     }
-
-    return paragraphs;
+    return 0;
   }
 
   countSelectedMultiple(doc: TextDocument, selections: Selection[]) {
@@ -278,7 +284,9 @@ export class WordCounterController {
 
   _onEventTextEditorSelection(event: TextEditorSelectionChangeEvent) {
     if (this._couldUpdate()) {
-      this.wordCounter.update(true);
+      if (event.selections.filter(s => !s.isEmpty).length > 0) {
+        this.wordCounter.update(true);
+      }
     } else {
       this.wordCounter.hide();
     }

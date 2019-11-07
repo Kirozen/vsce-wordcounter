@@ -1,5 +1,9 @@
 # Change Log
 
+## [unreleased]
+
+* Fix #25: Counting of paragraphs in new, empty file
+
 ## 2.0.0
 
 * Migrate project from javascript to typescript
