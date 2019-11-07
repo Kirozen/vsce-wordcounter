@@ -33,6 +33,7 @@ interface WordCounterConfiguration {
   count_paragraphs: boolean;
   readtime: boolean;
   simple_wordcount: boolean;
+  include_eol_chars: boolean;
   wpm: number;
 }
 
@@ -48,11 +49,11 @@ export class WordCounter {
   wordRegExSub: RegExp = /[\w\u0370-\uffef]+/;
   crlfRE = {
     split: /\r\n[\r\n]+/,
-    replace: /\r\n/
+    replace: /\r\n/g
   };
   lfRE = {
     split: /\n\n+/,
-    replace: /\n/
+    replace: /\n/g
   };
   statusBarItem: StatusBarItem;
   text: TextConfig = {} as TextConfig;
@@ -135,7 +136,7 @@ export class WordCounter {
   computeResult(doc: TextDocument, content: string, hasSelectedText: boolean) {
     const aDisplay = this.toDisplay({
       words: this.wordCount(content),
-      chars: content.length,
+      chars: this.charCount(content, doc.eol),
       lines: this.lineCount(content, hasSelectedText, doc),
       paragraphs: this.paragraphCount(content, doc.eol)
     } as DisplayData);
@@ -146,6 +147,14 @@ export class WordCounter {
   countSelectedSimple(doc: TextDocument, selection: Selection) {
     var content = doc.getText(selection.with());
     return this.computeResult(doc, content, true);
+  }
+
+  charCount(content: string, linefeed: EndOfLine) {
+    if (this.config.include_eol_chars) {
+      return content.length;
+    }
+    const re = linefeed === EndOfLine.CRLF ? this.crlfRE.replace : this.lfRE.replace;
+    return content.replace(re, '').length;
   }
 
   lineCount(content: string, hasSelectedText: boolean, doc: TextDocument) {
@@ -310,6 +319,7 @@ export class WordCounterController {
       count_lines: configuration.get('count_lines', false),
       count_paragraphs: configuration.get('count_paragraphs', false),
       simple_wordcount: configuration.get('simple_wordcount', true),
+      include_eol_chars: configuration.get('include_eol_chars', true),
       readtime: configuration.get('readtime', false),
       wpm: configuration.get('wpm', 200)
     } as WordCounterConfiguration;

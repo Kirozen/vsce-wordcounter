@@ -227,3 +227,35 @@ suite('Wordcounter.paragraphCount()', () => {
   });
 
 });
+
+suite('Wordcounter.charCount() without eol chars', () => {
+  let counter: WordCounter;
+
+  vscode.window.showInformationMessage('Start charCount() without eol chars tests.');
+
+  beforeEach(() => {
+    counter = new WordCounter();
+    counter.config.include_eol_chars = false;
+  });
+
+  test('Empty line', () => {
+    assert.strictEqual(counter.charCount('', currentEOF), 0);
+  });
+
+  test('Empty lines', () => {
+    const lines = `
+
+
+`;
+    assert.strictEqual(counter.charCount(lines, currentEOF), 0);
+  });
+
+  test('Some lines', () => {
+    const lines = `123
+567
+
+89`;
+    assert.strictEqual(counter.charCount(lines, currentEOF), 8);
+  });
+
+});

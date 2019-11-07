@@ -66,6 +66,11 @@
           "default": true,
           "description": "Control if word counting uses simple method or not."
         },
+        "wordcounter.include_eol_chars": {
+          "type": "boolean",
+          "default": true,
+          "description": "Control if char counting include eol chars or not."
+        },
         "wordcounter.readtime": {
           "type": "boolean",
           "default": true,
