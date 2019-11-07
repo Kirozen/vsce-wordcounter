@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 
 import { WordCounter } from '../../wordCounter';
 
+const currentEOF = `
+`.search(/\r\n/) >= 0 ? vscode.EndOfLine.CRLF : vscode.EndOfLine.LF;
 
 suite('Wordcounter.wordCount()', () => {
   let counter: WordCounter;
@@ -175,42 +177,85 @@ suite('Wordcounter.paragraphCount()', () => {
     counter.config.count_paragraphs = true;
   });
 
-  // Defines a Mocha unit test
+  test('Empty line', () => {
+    assert.strictEqual(counter.paragraphCount('', currentEOF), 0);
+  });
+
+  test('Empty lines', () => {
+    const lines = `
+
+
+`;
+    assert.strictEqual(counter.paragraphCount(lines, currentEOF), 0);
+  });
+
   test('latin', () => {
     assert.strictEqual(counter.paragraphCount(`
     one two three
     four five
-    `, vscode.EndOfLine.CRLF), 1);
+    `, currentEOF), 1);
   });
 
   test('cyrillic', () => {
     assert.strictEqual(counter.paragraphCount(`
       один два три
       четыре Пять Ёлка
-    `, vscode.EndOfLine.CRLF), 1);
+    `, currentEOF), 1);
   });
 
   test('mixed', () => {
     assert.strictEqual(counter.paragraphCount(`
       один two три
       four Пять ёлка
-    `, vscode.EndOfLine.CRLF), 1);
+    `, currentEOF), 1);
   });
 
   test('hyphenated', () => {
-    assert.strictEqual(counter.paragraphCount('test-hyphen', vscode.EndOfLine.CRLF), 1);
-    assert.strictEqual(counter.paragraphCount('что-то', vscode.EndOfLine.CRLF), 1);
+    assert.strictEqual(counter.paragraphCount('test-hyphen', currentEOF), 1);
+    assert.strictEqual(counter.paragraphCount('что-то', currentEOF), 1);
   });
 
   test('contracted', () => {
-    assert.strictEqual(counter.paragraphCount(`I won't`, vscode.EndOfLine.CRLF), 1);
-    assert.strictEqual(counter.paragraphCount(`д'Артаньян`, vscode.EndOfLine.CRLF), 1);
+    assert.strictEqual(counter.paragraphCount(`I won't`, currentEOF), 1);
+    assert.strictEqual(counter.paragraphCount(`д'Артаньян`, currentEOF), 1);
   });
 
   test('number', () => {
-    assert.strictEqual(counter.paragraphCount('They sell 75 different products.', vscode.EndOfLine.CRLF), 1);
-    assert.strictEqual(counter.paragraphCount('Account 12345678, Sort Code 01-02-03', vscode.EndOfLine.CRLF), 1);
-    assert.strictEqual(counter.paragraphCount('Item 06: 87,334.67', vscode.EndOfLine.CRLF), 1);
+    assert.strictEqual(counter.paragraphCount('They sell 75 different products.', currentEOF), 1);
+    assert.strictEqual(counter.paragraphCount('Account 12345678, Sort Code 01-02-03', currentEOF), 1);
+    assert.strictEqual(counter.paragraphCount('Item 06: 87,334.67', currentEOF), 1);
+  });
+
+});
+
+suite('Wordcounter.charCount() without eol chars', () => {
+  let counter: WordCounter;
+
+  vscode.window.showInformationMessage('Start charCount() without eol chars tests.');
+
+  beforeEach(() => {
+    counter = new WordCounter();
+    counter.config.include_eol_chars = false;
+  });
+
+  test('Empty line', () => {
+    assert.strictEqual(counter.charCount('', currentEOF), 0);
+  });
+
+  test('Empty lines', () => {
+    const lines = `
+
+
+`;
+    assert.strictEqual(counter.charCount(lines, currentEOF), 0);
+  });
+
+  test('Some lines', () => {
+    const lines = `123
+567
+
+89`;
+    assert.strictEqual(counter.charCount(lines, currentEOF), 8);
   });
 
 });

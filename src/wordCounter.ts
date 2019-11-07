@@ -33,6 +33,7 @@ interface WordCounterConfiguration {
   count_paragraphs: boolean;
   readtime: boolean;
   simple_wordcount: boolean;
+  include_eol_chars: boolean;
   wpm: number;
 }
 
@@ -46,6 +47,14 @@ interface DisplayData {
 export class WordCounter {
   wordRegEx: RegExp = /[\S]+/g;
   wordRegExSub: RegExp = /[\w\u0370-\uffef]+/;
+  crlfRE = {
+    split: /\r\n[\r\n]+/,
+    replace: /\r\n/g
+  };
+  lfRE = {
+    split: /\n\n+/,
+    replace: /\n/g
+  };
   statusBarItem: StatusBarItem;
   text: TextConfig = {} as TextConfig;
   config: WordCounterConfiguration = {} as WordCounterConfiguration;
@@ -127,7 +136,7 @@ export class WordCounter {
   computeResult(doc: TextDocument, content: string, hasSelectedText: boolean) {
     const aDisplay = this.toDisplay({
       words: this.wordCount(content),
-      chars: content.length,
+      chars: this.charCount(content, doc.eol),
       lines: this.lineCount(content, hasSelectedText, doc),
       paragraphs: this.paragraphCount(content, doc.eol)
     } as DisplayData);
@@ -140,18 +149,22 @@ export class WordCounter {
     return this.computeResult(doc, content, true);
   }
 
-  lineCount(content: string, hasSelectedText: boolean, doc: TextDocument) {
-    let lines = 1;
+  charCount(content: string, linefeed: EndOfLine) {
+    if (this.config.include_eol_chars) {
+      return content.length;
+    }
+    const re = linefeed === EndOfLine.CRLF ? this.crlfRE.replace : this.lfRE.replace;
+    return content.replace(re, '').length;
+  }
 
+  lineCount(content: string, hasSelectedText: boolean, doc: TextDocument) {
     if (this.config.count_lines) {
       if (hasSelectedText) {
-        lines = content.split('\n').length;
-      } else {
-        lines = doc.lineCount;
+        return content.split('\n').length;
       }
+      return doc.lineCount;
     }
-
-    return lines;
+    return 1;
   }
 
   wordCount(content: string) {
@@ -171,17 +184,15 @@ export class WordCounter {
   }
 
   paragraphCount(content: string, linefeed: EndOfLine) {
-    let paragraphs = 0;
-
     if (content && this.config.count_paragraphs) {
-      if (linefeed === EndOfLine.CRLF) {
-        paragraphs = content.split(/\r\n[\r\n]+/).filter(p => p.length > 0).length;
-      } else {
-        paragraphs = content.split(/\n\n+/).filter(p => p.length > 0).length;
-      }
+      const re = linefeed === EndOfLine.CRLF ? this.crlfRE : this.lfRE;
+      return content
+        .split(re.split)
+        .map(p => p.replace(re.replace, ''))
+        .filter(p => p.length > 0)
+        .length;
     }
-
-    return paragraphs;
+    return 0;
   }
 
   countSelectedMultiple(doc: TextDocument, selections: Selection[]) {
@@ -278,7 +289,9 @@ export class WordCounterController {
 
   _onEventTextEditorSelection(event: TextEditorSelectionChangeEvent) {
     if (this._couldUpdate()) {
-      this.wordCounter.update(true);
+      if (event.selections.filter(s => !s.isEmpty).length > 0) {
+        this.wordCounter.update(true);
+      }
     } else {
       this.wordCounter.hide();
     }
@@ -302,6 +315,7 @@ export class WordCounterController {
       count_lines: configuration.get('count_lines', false),
       count_paragraphs: configuration.get('count_paragraphs', false),
       simple_wordcount: configuration.get('simple_wordcount', true),
+      include_eol_chars: configuration.get('include_eol_chars', true),
       readtime: configuration.get('readtime', false),
       wpm: configuration.get('wpm', 200)
     } as WordCounterConfiguration;
