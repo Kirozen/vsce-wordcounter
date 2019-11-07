@@ -8,7 +8,7 @@
   "icon": "logo/wordcounter.png",
   "license": "SEE LICENSE IN LICENSE.md",
   "engines": {
-    "vscode": "^1.0.0"
+    "vscode": "^1.39.0"
   },
   "categories": [
     "Other"
@@ -22,7 +22,7 @@
   },
   "bugs": "https://github.com/Kirozen/vsce-wordcounter/issues",
   "homepage": "https://github.com/Kirozen/vsce-wordcounter/blob/master/README.md",
-  "main": "./dist/extension",
+  "main": "./out/extension.js",
   "contributes": {
     "configuration": {
       "type": "object",
@@ -60,6 +60,11 @@
           "type": "boolean",
           "default": true,
           "description": "Control whether paragraph counter is enabled or not."
+        },
+        "wordcounter.simple_wordcount": {
+          "type": "boolean",
+          "default": true,
+          "description": "Control if word counting uses simple method or not."
         },
         "wordcounter.readtime": {
           "type": "boolean",
@@ -130,36 +135,22 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "webpack --mode production",
-    "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "node ./node_modules/vscode/bin/test"
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^10.14.12",
-    "babel-preset-env": "^1.7.0",
-    "babel-register": "^6.26.0",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.18.0",
-    "eslint-plugin-node": "^9.0.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "mocha": "^6.1.4",
-    "vscode": "^1.1.35",
-    "webpack": "^4.35.3",
-    "webpack-cli": "^3.3.6"
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.11.7",
+    "@types/vscode": "^1.39.0",
+    "glob": "^7.1.5",
+    "mocha": "^6.2.2",
+    "typescript": "^3.6.4",
+    "tslint": "^5.20.0",
+    "vscode-test": "^1.2.2"
   },
-  "dependencies": {
-    "lodash": "^4.17.14"
-  },
-  "babel": {
-    "presets": [
-      "env"
-    ],
-    "sourceMaps": true,
-    "retainLines": true
-  }
+  "dependencies": {}
 }
