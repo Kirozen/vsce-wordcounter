@@ -61,6 +61,11 @@
           "default": true,
           "description": "Control whether paragraph counter is enabled or not."
         },
+        "wordcounter.simple_wordcount": {
+          "type": "boolean",
+          "default": true,
+          "description": "Control if word counting uses simple method or not."
+        },
         "wordcounter.readtime": {
           "type": "boolean",
           "default": true,
@@ -148,7 +153,5 @@
     "tslint": "^5.20.0",
     "vscode-test": "^1.2.2"
   },
-  "dependencies": {
-    "lodash": "^4.17.15"
-  }
+  "dependencies": {}
 }
