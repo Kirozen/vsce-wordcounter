@@ -81,6 +81,26 @@
           "default": 200,
           "description": "Words per minute"
         },
+        "wordcounter.position.left": {
+          "type":"array",
+          "default": ["word", "char", "line", "paragraph", "readingtime"],
+          "description": "Control order on the left",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [ "word", "char", "line", "paragraph", "readingtime" ]
+          }
+        },
+        "wordcounter.position.right": {
+          "type":"array",
+          "default": [],
+          "description": "Control order on the right",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [ "word", "char", "line", "paragraph", "readingtime" ]
+          }
+        },
         "wordcounter.text.word": {
           "type": "string",
           "default": "Word",

@@ -35,6 +35,8 @@ interface WordCounterConfiguration {
   simple_wordcount: boolean;
   include_eol_chars: boolean;
   wpm: number;
+  position_left: string[];
+  position_right: string[];
 }
 
 interface DisplayData {
@@ -55,12 +57,15 @@ export class WordCounter {
     split: /\n\n+/,
     replace: /\n/g
   };
-  statusBarItem: StatusBarItem;
+  statusBarItemLeft: StatusBarItem;
+  statusBarItemRight: StatusBarItem;
+
   text: TextConfig = {} as TextConfig;
   config: WordCounterConfiguration = {} as WordCounterConfiguration;
 
   constructor() {
-    this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+    this.statusBarItemLeft = window.createStatusBarItem(StatusBarAlignment.Left);
+    this.statusBarItemRight = window.createStatusBarItem(StatusBarAlignment.Right);
   }
 
   updateConfiguration(configuration: WordCounterConfiguration, text: TextConfig) {
@@ -69,13 +74,17 @@ export class WordCounter {
   }
 
   update(fromSelection: boolean = true) {
-    if (!this.statusBarItem) {
-      this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+    if (!this.statusBarItemLeft) {
+      this.statusBarItemLeft = window.createStatusBarItem(StatusBarAlignment.Left);
+    }
+    if (!this.statusBarItemRight) {
+      this.statusBarItemRight = window.createStatusBarItem(StatusBarAlignment.Right);
     }
 
     const editor = window.activeTextEditor;
     if (!editor) {
-      this.statusBarItem.hide();
+      this.statusBarItemLeft.hide();
+      this.statusBarItemRight.hide();
       return;
     }
 
@@ -83,47 +92,56 @@ export class WordCounter {
     const bSelectionMultiple = fromSelection && editor.selections.length > 1;
 
     if (bSelectionSimple) {
-      this.statusBarItem.text = this.countSelectedSimple(editor.document, editor.selection);
+      this.statusBarItemLeft.text = this.countSelectedSimple(editor.document, editor.selection, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countSelectedSimple(editor.document, editor.selection, StatusBarAlignment.Right);
     } else if (bSelectionMultiple) {
-      this.statusBarItem.text = this.countSelectedMultiple(editor.document, editor.selections);
+      this.statusBarItemLeft.text = this.countSelectedMultiple(editor.document, editor.selections, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countSelectedMultiple(editor.document, editor.selections, StatusBarAlignment.Right);
     } else {
-      this.statusBarItem.text = this.countAll(editor.document);
+      this.statusBarItemLeft.text = this.countAll(editor.document, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countAll(editor.document, StatusBarAlignment.Right);
     }
-    this.statusBarItem.show();
+    this.statusBarItemLeft.show();
+    this.statusBarItemRight.show();
   }
 
   hide() {
-    this.statusBarItem.hide();
+    this.statusBarItemLeft.hide();
+    this.statusBarItemRight.hide();
   }
 
   dispose() {
-    this.statusBarItem.dispose();
+    this.statusBarItemLeft.dispose();
+    this.statusBarItemRight.dispose();
   }
 
-  toDisplay(oIn: DisplayData) {
+  toDisplay(oIn: DisplayData, alignment: StatusBarAlignment) {
+    const filter = new Set(
+      alignment === StatusBarAlignment.Left ? this.config.position_left : this.config.position_right
+    )
+
     const out = [];
-    if (this.config.count_words) {
+    if (this.config.count_words && filter.has("word")) {
       const val = oIn.words;
       const text = val === 1 ? this.text.word : this.text.words;
       out.push(`${val}${this.text.word_delimiter}${text}`);
     }
-    if (this.config.count_chars) {
+    if (this.config.count_chars && filter.has("char")) {
       const val = oIn.chars;
       const text = val === 1 ? this.text.char : this.text.chars;
       out.push(`${val}${this.text.word_delimiter}${text}`);
     }
-    if (this.config.count_lines) {
+    if (this.config.count_lines && filter.has("line")) {
       const val = oIn.lines;
       const text = val === 1 ? this.text.line : this.text.lines;
       out.push(`${val}${this.text.word_delimiter}${text}`);
     }
-    if (this.config.count_paragraphs) {
+    if (this.config.count_paragraphs && filter.has("paragraph")) {
       const val = oIn.paragraphs;
       const text = val === 1 ? this.text.paragraph : this.text.paragraphs;
       out.push(`${val}${this.text.word_delimiter}${text}`);
     }
-
-    if (this.config.readtime) {
+    if (this.config.readtime && filter.has("readingtime")) {
       const div = oIn.words / this.config.wpm;
       const m = Math.floor(div);
       const s = Math.round(60 * (div - m));
@@ -133,20 +151,20 @@ export class WordCounter {
     return out;
   }
 
-  computeResult(doc: TextDocument, content: string, hasSelectedText: boolean) {
+  computeResult(doc: TextDocument, content: string, hasSelectedText: boolean, alignment: StatusBarAlignment) {
     const aDisplay = this.toDisplay({
       words: this.wordCount(content),
       chars: this.charCount(content, doc.eol),
       lines: this.lineCount(content, hasSelectedText, doc),
       paragraphs: this.paragraphCount(content, doc.eol)
-    } as DisplayData);
+    } as DisplayData, alignment);
 
     return aDisplay.join(this.text.delimiter);
   }
 
-  countSelectedSimple(doc: TextDocument, selection: Selection) {
+  countSelectedSimple(doc: TextDocument, selection: Selection, alignment: StatusBarAlignment) {
     var content = doc.getText(selection.with());
-    return this.computeResult(doc, content, true);
+    return this.computeResult(doc, content, true, alignment);
   }
 
   charCount(content: string, linefeed: EndOfLine) {
@@ -195,7 +213,7 @@ export class WordCounter {
     return 0;
   }
 
-  countSelectedMultiple(doc: TextDocument, selections: Selection[]) {
+  countSelectedMultiple(doc: TextDocument, selections: Selection[], alignment: StatusBarAlignment) {
     let words = 0;
     let chars = 0;
     let paragraphs = 0;
@@ -230,13 +248,13 @@ export class WordCounter {
       chars: chars,
       lines: lines,
       paragraphs: paragraphs
-    } as DisplayData);
+    } as DisplayData, alignment);
 
     return aDisplay.join(this.text.delimiter);
   }
 
-  countAll(doc: TextDocument) {
-    return this.computeResult(doc, doc.getText(), false);
+  countAll(doc: TextDocument, alignment: StatusBarAlignment) {
+    return this.computeResult(doc, doc.getText(), false, alignment);
   }
 }
 
@@ -317,7 +335,9 @@ export class WordCounterController {
       simple_wordcount: configuration.get('simple_wordcount', true),
       include_eol_chars: configuration.get('include_eol_chars', true),
       readtime: configuration.get('readtime', false),
-      wpm: configuration.get('wpm', 200)
+      wpm: configuration.get('wpm', 200),
+      position_left: configuration.get('position.left', ["word", "char", "line", "paragraph"]),
+      position_right: configuration.get('position.right', ["readingtime"])
     } as WordCounterConfiguration;
     const text: TextConfig = {
       word: configuration.get('text.word'),
