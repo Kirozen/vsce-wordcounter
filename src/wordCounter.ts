@@ -336,8 +336,8 @@ export class WordCounterController {
       include_eol_chars: configuration.get('include_eol_chars', true),
       readtime: configuration.get('readtime', false),
       wpm: configuration.get('wpm', 200),
-      position_left: configuration.get('position.left', ["word", "char", "line", "paragraph"]),
-      position_right: configuration.get('position.right', ["readingtime"])
+      position_left: configuration.get('position.left', ["word", "char", "line", "paragraph", "readingtime"]),
+      position_right: configuration.get('position.right', [])
     } as WordCounterConfiguration;
     const text: TextConfig = {
       word: configuration.get('text.word'),

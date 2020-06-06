@@ -83,7 +83,7 @@
         },
         "wordcounter.position.left": {
           "type":"array",
-          "default": ["word", "char", "line", "paragraph", "readingtime"],
+          "default": [],
           "description": "Control order on the left",
           "uniqueItems": true,
           "items": {
