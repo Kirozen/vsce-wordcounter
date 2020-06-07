@@ -35,8 +35,8 @@ interface WordCounterConfiguration {
   simple_wordcount: boolean;
   include_eol_chars: boolean;
   wpm: number;
-  position_left: string[];
-  position_right: string[];
+  position_left: Counter[];
+  position_right: Counter[];
 }
 
 interface DisplayData {
@@ -45,6 +45,8 @@ interface DisplayData {
   lines: number;
   paragraphs: number;
 }
+
+type Counter = "word" | "char" | "line" | "paragraph" | "readingtime"
 
 export class WordCounter {
   wordRegEx: RegExp = /[\S]+/g;
@@ -116,39 +118,37 @@ export class WordCounter {
   }
 
   toDisplay(oIn: DisplayData, alignment: StatusBarAlignment) {
-    const filter = new Set(
-      alignment === StatusBarAlignment.Left ? this.config.position_left : this.config.position_right
-    )
+    const order = alignment === StatusBarAlignment.Left ? this.config.position_left : this.config.position_right;
+    const map = {} as Record<Counter, string>
 
-    const out = [];
-    if (this.config.count_words && filter.has("word")) {
+    if (this.config.count_words && order.includes("word")) {
       const val = oIn.words;
       const text = val === 1 ? this.text.word : this.text.words;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["word"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_chars && filter.has("char")) {
+    if (this.config.count_chars && order.includes("char")) {
       const val = oIn.chars;
       const text = val === 1 ? this.text.char : this.text.chars;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["char"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_lines && filter.has("line")) {
+    if (this.config.count_lines && order.includes("line")) {
       const val = oIn.lines;
       const text = val === 1 ? this.text.line : this.text.lines;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["line"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_paragraphs && filter.has("paragraph")) {
+    if (this.config.count_paragraphs && order.includes("paragraph")) {
       const val = oIn.paragraphs;
       const text = val === 1 ? this.text.paragraph : this.text.paragraphs;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["paragraph"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.readtime && filter.has("readingtime")) {
+    if (this.config.readtime && order.includes("readingtime")) {
       const div = oIn.words / this.config.wpm;
       const m = Math.floor(div);
       const s = Math.round(60 * (div - m));
-      out.push(`~${m}m${s}s ${this.text.readingtime}`);
+      map["readingtime"] = `~${m}m${s}s ${this.text.readingtime}`;
     }
 
-    return out;
+    return order.map(key => map[key]);
   }
 
   computeResult(doc: TextDocument, content: string, hasSelectedText: boolean, alignment: StatusBarAlignment) {
