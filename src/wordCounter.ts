@@ -35,8 +35,8 @@ interface WordCounterConfiguration {
   simple_wordcount: boolean;
   include_eol_chars: boolean;
   wpm: number;
-  position_left: Counter[];
-  position_right: Counter[];
+  side_left: Counter[];
+  side_right: Counter[];
 }
 
 interface DisplayData {
@@ -118,7 +118,7 @@ export class WordCounter {
   }
 
   toDisplay(oIn: DisplayData, alignment: StatusBarAlignment) {
-    const order = alignment === StatusBarAlignment.Left ? this.config.position_left : this.config.position_right;
+    const order = alignment === StatusBarAlignment.Left ? this.config.side_left : this.config.side_right;
     const map = {} as Record<Counter, string>
 
     if (this.config.count_words && order.includes("word")) {
@@ -327,17 +327,22 @@ export class WordCounterController {
   reloadConfig() {
     const configuration = workspace.getConfiguration('wordcounter');
     this.languages = configuration.get('languages', []);
+
+    const side_left = configuration.get('side.left', ["word", "char", "line", "paragraph", "readingtime"]) as Counter[]
+    const side_right = configuration.get('side.right', []) as Counter[]
+    const enabling = new Set<Counter>(Array.from(side_left).concat(side_right))
+
     let config: WordCounterConfiguration = {
-      count_words: configuration.get('count_words', false),
-      count_chars: configuration.get('count_chars', false),
-      count_lines: configuration.get('count_lines', false),
-      count_paragraphs: configuration.get('count_paragraphs', false),
+      count_words: enabling.has("word"),
+      count_chars: enabling.has("char"),
+      count_lines: enabling.has("line"),
+      count_paragraphs: enabling.has("paragraph"),
+      readtime: enabling.has("readingtime"),
       simple_wordcount: configuration.get('simple_wordcount', true),
       include_eol_chars: configuration.get('include_eol_chars', true),
-      readtime: configuration.get('readtime', false),
       wpm: configuration.get('wpm', 200),
-      position_left: configuration.get('position.left', ["word", "char", "line", "paragraph", "readingtime"]),
-      position_right: configuration.get('position.right', [])
+      side_left,
+      side_right,
     } as WordCounterConfiguration;
     const text: TextConfig = {
       word: configuration.get('text.word'),

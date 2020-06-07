@@ -41,26 +41,6 @@
           "default": null,
           "description": "Specifies languages which enable WordCounter, or null to enable for all."
         },
-        "wordcounter.count_words": {
-          "type": "boolean",
-          "default": true,
-          "description": "Control whether word counter is enabled or not."
-        },
-        "wordcounter.count_chars": {
-          "type": "boolean",
-          "default": true,
-          "description": "Control whether char counter is enabled or not."
-        },
-        "wordcounter.count_lines": {
-          "type": "boolean",
-          "default": true,
-          "description": "Control whether line counter is enabled or not."
-        },
-        "wordcounter.count_paragraphs": {
-          "type": "boolean",
-          "default": true,
-          "description": "Control whether paragraph counter is enabled or not."
-        },
         "wordcounter.simple_wordcount": {
           "type": "boolean",
           "default": true,
@@ -71,30 +51,25 @@
           "default": true,
           "description": "Control if char counting include eol chars or not."
         },
-        "wordcounter.readtime": {
-          "type": "boolean",
-          "default": true,
-          "description": "Control whether read time functionality is enabled or not."
-        },
         "wordcounter.wpm": {
           "type": "integer",
           "default": 200,
           "description": "Words per minute"
         },
-        "wordcounter.position.left": {
+        "wordcounter.side.left": {
           "type":"array",
-          "default": [],
-          "description": "Control order on the left",
+          "default": ["word", "char", "line", "paragraph", "readingtime"],
+          "description": "Control order on the left side of the status bar",
           "uniqueItems": true,
           "items": {
             "type": "string",
             "enum": [ "word", "char", "line", "paragraph", "readingtime" ]
           }
         },
-        "wordcounter.position.right": {
+        "wordcounter.side.right": {
           "type":"array",
           "default": [],
-          "description": "Control order on the right",
+          "description": "Control order on the right side of the status bar",
           "uniqueItems": true,
           "items": {
             "type": "string",
