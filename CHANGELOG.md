@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.2.0
+
+* Reduce number of calls to update()
+* Fix #27: Can't see total word count after selecting then deselecting text
+* Fix #30: only works on typing, not pasted text
+* Add new functionality to select side for each element (thanks @FuriouZz)
+
 ## 2.1.0
 
 * Fix #25: Counting of paragraphs in new, empty file
