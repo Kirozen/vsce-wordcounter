@@ -6,6 +6,7 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   TextDocument,
+  TextDocumentChangeEvent,
   TextEditorSelectionChangeEvent,
   window,
   workspace,
@@ -260,6 +261,7 @@ export class WordCounter {
 export class WordCounterController {
   wordCounter: WordCounter;
   disposable: Disposable;
+  currentEol?: EndOfLine = EndOfLine.LF;
   enabled: boolean = false;
   languages: string[] = [];
 
@@ -271,9 +273,10 @@ export class WordCounterController {
     window.onDidChangeTextEditorSelection(this._onEventTextEditorSelection, this, subscriptions);
     window.onDidChangeActiveTextEditor(this._onDidChangeActiveTextEditor, this, subscriptions);
     workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
+    workspace.onDidChangeTextDocument(this._onDidChangeTextDocument, this, subscriptions);
 
     if (window.activeTextEditor && this._couldUpdate()) {
-      this.wordCounter.update();
+      this._doUpdateComplete();
     }
     this.disposable = Disposable.from.apply(Disposable, subscriptions);
   }
@@ -287,20 +290,42 @@ export class WordCounterController {
     return this.enabled && window && window.activeTextEditor && (this.languages === null || this.languages.includes(window.activeTextEditor.document.languageId));
   }
 
+  _doUpdateComplete() {
+    this._storeCurrentEOL();
+    this.wordCounter.update(false);
+  }
+
+  _doUpdatePartial() {
+    this._storeCurrentEOL();
+    this.wordCounter.update(true);
+  }
+
+  _storeCurrentEOL() {
+    this.currentEol = window.activeTextEditor?.document.eol;
+  }
+
   _onDidChangeActiveTextEditor(event: any) {
     if (this._couldUpdate()) {
-      this.wordCounter.update(false);
+      this._doUpdateComplete();
     } else {
       this.wordCounter.hide();
+    }
+  }
+
+  _onDidChangeTextDocument(event: TextDocumentChangeEvent) {
+    if (this._couldUpdate()) {
+      if (window.activeTextEditor?.document.eol !== this.currentEol) {
+        this._doUpdateComplete();
+      }
     }
   }
 
   _onEventTextEditorSelection(event: TextEditorSelectionChangeEvent) {
     if (this._couldUpdate()) {
       if (event.selections.filter(s => !s.isEmpty).length > 0) {
-        this.wordCounter.update(true);
+        this._doUpdatePartial();
       } else {
-        this.wordCounter.update(false);
+        this._doUpdateComplete();
       }
     } else {
       this.wordCounter.hide();
@@ -310,7 +335,7 @@ export class WordCounterController {
   _onEventWhenConfChanged(event: ConfigurationChangeEvent) {
     this.reloadConfig();
     if (this._couldUpdate()) {
-      this.wordCounter.update(false);
+      this._doUpdateComplete();
     } else {
       this.wordCounter.hide();
     }

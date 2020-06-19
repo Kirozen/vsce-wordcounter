@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.1
+
+* Fix #32: Toggling between CRLF and LF
+
 ## 2.2.0
 
 * Reduce number of calls to update()
