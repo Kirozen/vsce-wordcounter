@@ -35,6 +35,8 @@ interface WordCounterConfiguration {
   simple_wordcount: boolean;
   include_eol_chars: boolean;
   wpm: number;
+  side_left: Counter[];
+  side_right: Counter[];
 }
 
 interface DisplayData {
@@ -43,6 +45,8 @@ interface DisplayData {
   lines: number;
   paragraphs: number;
 }
+
+type Counter = "word" | "char" | "line" | "paragraph" | "readingtime"
 
 export class WordCounter {
   wordRegEx: RegExp = /[\S]+/g;
@@ -55,12 +59,15 @@ export class WordCounter {
     split: /\n\n+/,
     replace: /\n/g
   };
-  statusBarItem: StatusBarItem;
+  statusBarItemLeft: StatusBarItem;
+  statusBarItemRight: StatusBarItem;
+
   text: TextConfig = {} as TextConfig;
   config: WordCounterConfiguration = {} as WordCounterConfiguration;
 
   constructor() {
-    this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+    this.statusBarItemLeft = window.createStatusBarItem(StatusBarAlignment.Left);
+    this.statusBarItemRight = window.createStatusBarItem(StatusBarAlignment.Right);
   }
 
   updateConfiguration(configuration: WordCounterConfiguration, text: TextConfig) {
@@ -69,13 +76,17 @@ export class WordCounter {
   }
 
   update(fromSelection: boolean = true) {
-    if (!this.statusBarItem) {
-      this.statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
+    if (!this.statusBarItemLeft) {
+      this.statusBarItemLeft = window.createStatusBarItem(StatusBarAlignment.Left);
+    }
+    if (!this.statusBarItemRight) {
+      this.statusBarItemRight = window.createStatusBarItem(StatusBarAlignment.Right);
     }
 
     const editor = window.activeTextEditor;
     if (!editor) {
-      this.statusBarItem.hide();
+      this.statusBarItemLeft.hide();
+      this.statusBarItemRight.hide();
       return;
     }
 
@@ -83,70 +94,77 @@ export class WordCounter {
     const bSelectionMultiple = fromSelection && editor.selections.length > 1;
 
     if (bSelectionSimple) {
-      this.statusBarItem.text = this.countSelectedSimple(editor.document, editor.selection);
+      this.statusBarItemLeft.text = this.countSelectedSimple(editor.document, editor.selection, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countSelectedSimple(editor.document, editor.selection, StatusBarAlignment.Right);
     } else if (bSelectionMultiple) {
-      this.statusBarItem.text = this.countSelectedMultiple(editor.document, editor.selections);
+      this.statusBarItemLeft.text = this.countSelectedMultiple(editor.document, editor.selections, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countSelectedMultiple(editor.document, editor.selections, StatusBarAlignment.Right);
     } else {
-      this.statusBarItem.text = this.countAll(editor.document);
+      this.statusBarItemLeft.text = this.countAll(editor.document, StatusBarAlignment.Left);
+      this.statusBarItemRight.text = this.countAll(editor.document, StatusBarAlignment.Right);
     }
-    this.statusBarItem.show();
+    this.statusBarItemLeft.show();
+    this.statusBarItemRight.show();
   }
 
   hide() {
-    this.statusBarItem.hide();
+    this.statusBarItemLeft.hide();
+    this.statusBarItemRight.hide();
   }
 
   dispose() {
-    this.statusBarItem.dispose();
+    this.statusBarItemLeft.dispose();
+    this.statusBarItemRight.dispose();
   }
 
-  toDisplay(oIn: DisplayData) {
-    const out = [];
-    if (this.config.count_words) {
+  toDisplay(oIn: DisplayData, alignment: StatusBarAlignment) {
+    const order = alignment === StatusBarAlignment.Left ? this.config.side_left : this.config.side_right;
+    const map = {} as Record<Counter, string>
+
+    if (this.config.count_words && order.includes("word")) {
       const val = oIn.words;
       const text = val === 1 ? this.text.word : this.text.words;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["word"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_chars) {
+    if (this.config.count_chars && order.includes("char")) {
       const val = oIn.chars;
       const text = val === 1 ? this.text.char : this.text.chars;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["char"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_lines) {
+    if (this.config.count_lines && order.includes("line")) {
       const val = oIn.lines;
       const text = val === 1 ? this.text.line : this.text.lines;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["line"] = `${val}${this.text.word_delimiter}${text}`;
     }
-    if (this.config.count_paragraphs) {
+    if (this.config.count_paragraphs && order.includes("paragraph")) {
       const val = oIn.paragraphs;
       const text = val === 1 ? this.text.paragraph : this.text.paragraphs;
-      out.push(`${val}${this.text.word_delimiter}${text}`);
+      map["paragraph"] = `${val}${this.text.word_delimiter}${text}`;
     }
-
-    if (this.config.readtime) {
+    if (this.config.readtime && order.includes("readingtime")) {
       const div = oIn.words / this.config.wpm;
       const m = Math.floor(div);
       const s = Math.round(60 * (div - m));
-      out.push(`~${m}m${s}s ${this.text.readingtime}`);
+      map["readingtime"] = `~${m}m${s}s ${this.text.readingtime}`;
     }
 
-    return out;
+    return order.map(key => map[key]);
   }
 
-  computeResult(doc: TextDocument, content: string, hasSelectedText: boolean) {
+  computeResult(doc: TextDocument, content: string, hasSelectedText: boolean, alignment: StatusBarAlignment) {
     const aDisplay = this.toDisplay({
       words: this.wordCount(content),
       chars: this.charCount(content, doc.eol),
       lines: this.lineCount(content, hasSelectedText, doc),
       paragraphs: this.paragraphCount(content, doc.eol)
-    } as DisplayData);
+    } as DisplayData, alignment);
 
     return aDisplay.join(this.text.delimiter);
   }
 
-  countSelectedSimple(doc: TextDocument, selection: Selection) {
+  countSelectedSimple(doc: TextDocument, selection: Selection, alignment: StatusBarAlignment) {
     var content = doc.getText(selection.with());
-    return this.computeResult(doc, content, true);
+    return this.computeResult(doc, content, true, alignment);
   }
 
   charCount(content: string, linefeed: EndOfLine) {
@@ -195,7 +213,7 @@ export class WordCounter {
     return 0;
   }
 
-  countSelectedMultiple(doc: TextDocument, selections: Selection[]) {
+  countSelectedMultiple(doc: TextDocument, selections: Selection[], alignment: StatusBarAlignment) {
     let words = 0;
     let chars = 0;
     let paragraphs = 0;
@@ -230,13 +248,13 @@ export class WordCounter {
       chars: chars,
       lines: lines,
       paragraphs: paragraphs
-    } as DisplayData);
+    } as DisplayData, alignment);
 
     return aDisplay.join(this.text.delimiter);
   }
 
-  countAll(doc: TextDocument) {
-    return this.computeResult(doc, doc.getText(), false);
+  countAll(doc: TextDocument, alignment: StatusBarAlignment) {
+    return this.computeResult(doc, doc.getText(), false, alignment);
   }
 }
 
@@ -309,15 +327,22 @@ export class WordCounterController {
   reloadConfig() {
     const configuration = workspace.getConfiguration('wordcounter');
     this.languages = configuration.get('languages', []);
+
+    const side_left = configuration.get('side.left', ["word", "char", "line", "paragraph", "readingtime"]) as Counter[]
+    const side_right = configuration.get('side.right', []) as Counter[]
+    const enabling = new Set<Counter>(Array.from(side_left).concat(side_right))
+
     let config: WordCounterConfiguration = {
-      count_words: configuration.get('count_words', false),
-      count_chars: configuration.get('count_chars', false),
-      count_lines: configuration.get('count_lines', false),
-      count_paragraphs: configuration.get('count_paragraphs', false),
+      count_words: enabling.has("word"),
+      count_chars: enabling.has("char"),
+      count_lines: enabling.has("line"),
+      count_paragraphs: enabling.has("paragraph"),
+      readtime: enabling.has("readingtime"),
       simple_wordcount: configuration.get('simple_wordcount', true),
       include_eol_chars: configuration.get('include_eol_chars', true),
-      readtime: configuration.get('readtime', false),
-      wpm: configuration.get('wpm', 200)
+      wpm: configuration.get('wpm', 200),
+      side_left,
+      side_right,
     } as WordCounterConfiguration;
     const text: TextConfig = {
       word: configuration.get('text.word'),
