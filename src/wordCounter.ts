@@ -6,7 +6,6 @@ import {
   StatusBarAlignment,
   StatusBarItem,
   TextDocument,
-  TextDocumentChangeEvent,
   TextEditorSelectionChangeEvent,
   window,
   workspace,
@@ -272,7 +271,6 @@ export class WordCounterController {
     window.onDidChangeTextEditorSelection(this._onEventTextEditorSelection, this, subscriptions);
     window.onDidChangeActiveTextEditor(this._onDidChangeActiveTextEditor, this, subscriptions);
     workspace.onDidChangeConfiguration(this._onEventWhenConfChanged, this, subscriptions);
-    workspace.onDidChangeTextDocument(this._onEventChangeTextDocument, this, subscriptions);
 
     if (window.activeTextEditor && this._couldUpdate()) {
       this.wordCounter.update();
@@ -289,14 +287,6 @@ export class WordCounterController {
     return this.enabled && window && window.activeTextEditor && (this.languages === null || this.languages.includes(window.activeTextEditor.document.languageId));
   }
 
-  _onEventChangeTextDocument(event: TextDocumentChangeEvent) {
-    if (this._couldUpdate()) {
-      this.wordCounter.update(false);
-    } else {
-      this.wordCounter.hide();
-    }
-  }
-
   _onDidChangeActiveTextEditor(event: any) {
     if (this._couldUpdate()) {
       this.wordCounter.update(false);
@@ -309,6 +299,8 @@ export class WordCounterController {
     if (this._couldUpdate()) {
       if (event.selections.filter(s => !s.isEmpty).length > 0) {
         this.wordCounter.update(true);
+      } else {
+        this.wordCounter.update(false);
       }
     } else {
       this.wordCounter.hide();
