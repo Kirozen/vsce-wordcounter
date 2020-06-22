@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.3.0
+
+* Fix #33: Number of lines doesn't update when using the 'Del' key
+* Add throttle limit to avoid multiple calls of update function
+
 ## 2.2.1
 
 * Fix #32: Toggling between CRLF and LF
