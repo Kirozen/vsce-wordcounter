@@ -2,7 +2,7 @@
   "name": "wordcounter",
   "displayName": "WordCounter",
   "description": "Complete word counter inspired by ST WordCount plugin",
-  "version": "2.2.1",
+  "version": "2.3.0",
   "markdown": "standard",
   "publisher": "kirozen",
   "icon": "logo/wordcounter.png",
@@ -32,6 +32,11 @@
           "type": "boolean",
           "default": true,
           "description": "Control whether WordCounter is enabled or not."
+        },
+        "wordcounter.throttle_limit": {
+          "type": "integer",
+          "default": 100,
+          "description": "Throttle limit in ms."
         },
         "wordcounter.languages": {
           "type": [

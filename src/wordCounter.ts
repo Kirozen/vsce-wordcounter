@@ -264,6 +264,8 @@ export class WordCounterController {
   currentEol?: EndOfLine = EndOfLine.LF;
   enabled: boolean = false;
   languages: string[] = [];
+  throttleWait: boolean = false;
+  throttleLimit: number = 100;
 
   constructor(wordCounter: WordCounter) {
     this.wordCounter = wordCounter;
@@ -291,13 +293,25 @@ export class WordCounterController {
   }
 
   _doUpdateComplete() {
-    this._storeCurrentEOL();
-    this.wordCounter.update(false);
+    if (!this.throttleWait) {
+      this._storeCurrentEOL();
+      this.wordCounter.update(false);
+      this.throttleWait = true;
+      setTimeout(() => {
+        this.throttleWait = false;
+      }, this.throttleLimit);
+    }
   }
 
   _doUpdatePartial() {
-    this._storeCurrentEOL();
-    this.wordCounter.update(true);
+    if (!this.throttleWait) {
+      this._storeCurrentEOL();
+      this.wordCounter.update(true);
+      this.throttleWait = true;
+      setTimeout(() => {
+        this.throttleWait = false;
+      }, this.throttleLimit);
+    }
   }
 
   _storeCurrentEOL() {
@@ -314,9 +328,7 @@ export class WordCounterController {
 
   _onDidChangeTextDocument(event: TextDocumentChangeEvent) {
     if (this._couldUpdate()) {
-      if (window.activeTextEditor?.document.eol !== this.currentEol) {
-        this._doUpdateComplete();
-      }
+      this._doUpdateComplete();
     }
   }
 
@@ -380,6 +392,7 @@ export class WordCounterController {
     }
 
     this.enabled = configuration.get('enabled', false) && (config.count_chars || config.count_lines || config.count_paragraphs || config.count_words);
+    this.throttleLimit = configuration.get('throttle_limit', 100);
 
     this.wordCounter.updateConfiguration(config, text);
   }
