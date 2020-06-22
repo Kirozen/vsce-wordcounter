@@ -33,6 +33,11 @@
           "default": true,
           "description": "Control whether WordCounter is enabled or not."
         },
+        "wordcounter.throttle_limit": {
+          "type": "integer",
+          "default": 100,
+          "description": "Throttle limit in ms."
+        },
         "wordcounter.languages": {
           "type": [
             "array",
