@@ -1,6 +1,7 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import { WordCounter, WordCounterController } from './wordCounter';
+import { WordCounter } from "./wordCounter";
+import { WordCounterController } from "./controller";
 
 export function activate(context: vscode.ExtensionContext) {
   const wordCounter = new WordCounter();
@@ -11,4 +12,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}
