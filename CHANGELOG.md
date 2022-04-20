@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.4.1
+
+* Fix tests
+* Clean code
+
 ## 2.4.0
 
 * Fix #34: Quickly selecting a paragraph doesn't always count its words accurately
