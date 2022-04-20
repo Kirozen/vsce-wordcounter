@@ -2,7 +2,6 @@ import {
   ConfigurationChangeEvent,
   Disposable,
   EndOfLine,
-  TextDocumentChangeEvent,
   TextEditorSelectionChangeEvent,
   window,
   workspace,
@@ -76,7 +75,8 @@ export class WordCounterController {
     this.currentEol = window.activeTextEditor?.document.eol;
   }
 
-  _onDidChangeActiveTextEditor(event: any) {
+  // eslint-disable-next-line no-unused-vars
+  _onDidChangeActiveTextEditor(_event: any) {
     if (this._couldUpdate()) {
       this._doUpdateComplete();
     } else {
@@ -96,7 +96,8 @@ export class WordCounterController {
     }
   }
 
-  _onEventWhenConfChanged(event: ConfigurationChangeEvent) {
+  // eslint-disable-next-line no-unused-vars
+  _onEventWhenConfChanged(_event: ConfigurationChangeEvent) {
     this.reloadConfig();
     if (this._couldUpdate()) {
       this._doUpdateComplete();
@@ -109,27 +110,27 @@ export class WordCounterController {
     const configuration = workspace.getConfiguration("wordcounter");
     this.languages = configuration.get("languages", []);
 
-    const side_left = configuration.get("side.left", [
+    const sideLeft = configuration.get("side.left", [
       "word",
       "char",
       "line",
       "paragraph",
       "readingtime",
     ]) as Counter[];
-    const side_right = configuration.get("side.right", []) as Counter[];
-    const enabling = new Set<Counter>(Array.from(side_left).concat(side_right));
+    const sideRight = configuration.get("side.right", []) as Counter[];
+    const enabling = new Set<Counter>(Array.from(sideLeft).concat(sideRight));
 
     let config: WordCounterConfiguration = {
-      count_words: enabling.has("word"),
-      count_chars: enabling.has("char"),
-      count_lines: enabling.has("line"),
-      count_paragraphs: enabling.has("paragraph"),
-      readtime: enabling.has("readingtime"),
-      simple_wordcount: configuration.get("simple_wordcount", true),
-      include_eol_chars: configuration.get("include_eol_chars", true),
+      countWords: enabling.has("word"),
+      countChars: enabling.has("char"),
+      countLines: enabling.has("line"),
+      countParagraphs: enabling.has("paragraph"),
+      readTime: enabling.has("readingtime"),
+      simpleWordCount: configuration.get("simple_wordcount", true),
+      includeEolChars: configuration.get("include_eol_chars", true),
       wpm: configuration.get("wpm", 200),
-      side_left,
-      side_right,
+      sideLeft: sideLeft,
+      sideRight: sideRight,
     } as WordCounterConfiguration;
     const text: TextConfig = {
       word: configuration.get("text.word"),
@@ -140,9 +141,9 @@ export class WordCounterController {
       lines: configuration.get("text.lines"),
       paragraph: configuration.get("text.paragraph"),
       paragraphs: configuration.get("text.paragraphs"),
-      word_delimiter: configuration.get("text.word_delimiter"),
+      wordDelimiter: configuration.get("text.word_delimiter"),
       delimiter: configuration.get("text.delimiter"),
-      readingtime: configuration.get("text.readingtime"),
+      readingTime: configuration.get("text.readingtime"),
     } as TextConfig;
 
     if (config.wpm < 1) {
@@ -151,10 +152,10 @@ export class WordCounterController {
 
     this.enabled =
       configuration.get("enabled", false) &&
-      (config.count_chars ||
-        config.count_lines ||
-        config.count_paragraphs ||
-        config.count_words);
+      (config.countChars ||
+        config.countLines ||
+        config.countParagraphs ||
+        config.countWords);
 
     this.wordCounter.updateConfiguration(config, text);
   }

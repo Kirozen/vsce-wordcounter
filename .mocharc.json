@@ -1,0 +1,14 @@
+{
+  "diff": true,
+  "extension": ["ts"],
+  "spec": ["src/test"],
+  "package": "./package.json",
+  "reporter": "spec",
+  "slow": "75",
+  "timeout": "2000",
+  "ui": "tdd",
+  "recursive": true,
+  "watch-files": ["src/test/**/*.test.ts"],
+  "watch-ignore": ["dist", "out"],
+  "require": ["ts-node/register/files"]
+}
