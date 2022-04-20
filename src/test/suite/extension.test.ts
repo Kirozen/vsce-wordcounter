@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { beforeEach } from 'mocha';
 import * as vscode from 'vscode';
 
-import { WordCounter } from '../../wordCounter';
+import { charCount, lineCount, paragraphCount, wordCount, WordCounter } from '../../wordCounter';
 
 const currentEOF = `
 `.search(/\r\n/) >= 0 ? vscode.EndOfLine.CRLF : vscode.EndOfLine.LF;
@@ -20,44 +20,44 @@ suite('Wordcounter.wordCount()', () => {
 
   // Defines a Mocha unit test
   test('latin', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
     one two three
     four five
-    `), 5);
+    `, true), 5);
   });
 
   test('cyrillic', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
       один два три
       четыре Пять Ёлка
-    `), 6);
+    `, true), 6);
   });
 
   test('mixed', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
       один two три
       four Пять ёлка
-    `), 6);
+    `, true), 6);
   });
 
   test('hyphenated', () => {
-    assert.strictEqual(counter.wordCount('test-hyphen'), 1);
-    assert.strictEqual(counter.wordCount('что-то'), 1);
+    assert.strictEqual(wordCount('test-hyphen', true), 1);
+    assert.strictEqual(wordCount('что-то', true), 1);
   });
 
   test('contracted', () => {
-    assert.strictEqual(counter.wordCount(`I won't`), 2);
-    assert.strictEqual(counter.wordCount(`д'Артаньян`), 1);
+    assert.strictEqual(wordCount(`I won't`, true), 2);
+    assert.strictEqual(wordCount(`д'Артаньян`, true), 1);
   });
 
   test('number', () => {
-    assert.strictEqual(counter.wordCount('They sell 75 different products.'), 5);
-    assert.strictEqual(counter.wordCount('Account 12345678, Sort Code 01-02-03'), 5);
-    assert.strictEqual(counter.wordCount('Item 06: 87,334.67'), 3);
+    assert.strictEqual(wordCount('They sell 75 different products.', true), 5);
+    assert.strictEqual(wordCount('Account 12345678, Sort Code 01-02-03', true), 5);
+    assert.strictEqual(wordCount('Item 06: 87,334.67', true), 3);
   });
 
   test('non-words', () => {
-    assert.strictEqual(counter.wordCount('one - two ; three'), 5);
+    assert.strictEqual(wordCount('one - two ; three', true), 5);
   });
 
 });
@@ -75,44 +75,44 @@ suite('Wordcounter.wordCount() not simple', () => {
 
   // Defines a Mocha unit test
   test('latin', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
     one two three
     four five
-    `), 5);
+    `, true), 5);
   });
 
   test('cyrillic', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
       один два три
       четыре Пять Ёлка
-    `), 6);
+    `, true), 6);
   });
 
   test('mixed', () => {
-    assert.strictEqual(counter.wordCount(`
+    assert.strictEqual(wordCount(`
       один two три
       four Пять ёлка
-    `), 6);
+    `, true), 6);
   });
 
   test('hyphenated', () => {
-    assert.strictEqual(counter.wordCount('test-hyphen'), 1);
-    assert.strictEqual(counter.wordCount('что-то'), 1);
+    assert.strictEqual(wordCount('test-hyphen', true), 1);
+    assert.strictEqual(wordCount('что-то', true), 1);
   });
 
   test('contracted', () => {
-    assert.strictEqual(counter.wordCount(`I won't`), 2);
-    assert.strictEqual(counter.wordCount(`д'Артаньян`), 1);
+    assert.strictEqual(wordCount(`I won't`, true), 2);
+    assert.strictEqual(wordCount(`д'Артаньян`, true), 1);
   });
 
   test('number', () => {
-    assert.strictEqual(counter.wordCount('They sell 75 different products.'), 5);
-    assert.strictEqual(counter.wordCount('Account 12345678, Sort Code 01-02-03'), 5);
-    assert.strictEqual(counter.wordCount('Item 06: 87,334.67'), 3);
+    assert.strictEqual(wordCount('They sell 75 different products.', true), 5);
+    assert.strictEqual(wordCount('Account 12345678, Sort Code 01-02-03', true), 5);
+    assert.strictEqual(wordCount('Item 06: 87,334.67', true), 3);
   });
 
   test('non-words', () => {
-    assert.strictEqual(counter.wordCount('one - two ; three'), 3);
+    assert.strictEqual(wordCount('one - two ; three', true), 3);
   });
 
 });
@@ -129,40 +129,40 @@ suite('Wordcounter.lineCount()', () => {
 
   // Defines a Mocha unit test
   test('latin', () => {
-    assert.strictEqual(counter.lineCount(`
+    assert.strictEqual(lineCount(`
     one two three
     four five
     `, true, {} as vscode.TextDocument), 4);
   });
 
   test('cyrillic', () => {
-    assert.strictEqual(counter.lineCount(`
+    assert.strictEqual(lineCount(`
       один два три
       четыре Пять Ёлка
     `, true, {} as vscode.TextDocument), 4);
   });
 
   test('mixed', () => {
-    assert.strictEqual(counter.lineCount(`
+    assert.strictEqual(lineCount(`
       один two три
       four Пять ёлка
     `, true, {} as vscode.TextDocument), 4);
   });
 
   test('hyphenated', () => {
-    assert.strictEqual(counter.lineCount('test-hyphen', true, {} as vscode.TextDocument), 1);
-    assert.strictEqual(counter.lineCount('что-то', true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount('test-hyphen', true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount('что-то', true, {} as vscode.TextDocument), 1);
   });
 
   test('contracted', () => {
-    assert.strictEqual(counter.lineCount(`I won't`, true, {} as vscode.TextDocument), 1);
-    assert.strictEqual(counter.lineCount(`д'Артаньян`, true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount(`I won't`, true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount(`д'Артаньян`, true, {} as vscode.TextDocument), 1);
   });
 
   test('number', () => {
-    assert.strictEqual(counter.lineCount('They sell 75 different products.', true, {} as vscode.TextDocument), 1);
-    assert.strictEqual(counter.lineCount('Account 12345678, Sort Code 01-02-03', true, {} as vscode.TextDocument), 1);
-    assert.strictEqual(counter.lineCount('Item 06: 87,334.67', true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount('They sell 75 different products.', true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount('Account 12345678, Sort Code 01-02-03', true, {} as vscode.TextDocument), 1);
+    assert.strictEqual(lineCount('Item 06: 87,334.67', true, {} as vscode.TextDocument), 1);
   });
 
 });
@@ -178,7 +178,7 @@ suite('Wordcounter.paragraphCount()', () => {
   });
 
   test('Empty line', () => {
-    assert.strictEqual(counter.paragraphCount('', currentEOF), 0);
+    assert.strictEqual(paragraphCount('', currentEOF), 0);
   });
 
   test('Empty lines', () => {
@@ -186,44 +186,44 @@ suite('Wordcounter.paragraphCount()', () => {
 
 
 `;
-    assert.strictEqual(counter.paragraphCount(lines, currentEOF), 0);
+    assert.strictEqual(paragraphCount(lines, currentEOF), 0);
   });
 
   test('latin', () => {
-    assert.strictEqual(counter.paragraphCount(`
+    assert.strictEqual(paragraphCount(`
     one two three
     four five
     `, currentEOF), 1);
   });
 
   test('cyrillic', () => {
-    assert.strictEqual(counter.paragraphCount(`
+    assert.strictEqual(paragraphCount(`
       один два три
       четыре Пять Ёлка
     `, currentEOF), 1);
   });
 
   test('mixed', () => {
-    assert.strictEqual(counter.paragraphCount(`
+    assert.strictEqual(paragraphCount(`
       один two три
       four Пять ёлка
     `, currentEOF), 1);
   });
 
   test('hyphenated', () => {
-    assert.strictEqual(counter.paragraphCount('test-hyphen', currentEOF), 1);
-    assert.strictEqual(counter.paragraphCount('что-то', currentEOF), 1);
+    assert.strictEqual(paragraphCount('test-hyphen', currentEOF), 1);
+    assert.strictEqual(paragraphCount('что-то', currentEOF), 1);
   });
 
   test('contracted', () => {
-    assert.strictEqual(counter.paragraphCount(`I won't`, currentEOF), 1);
-    assert.strictEqual(counter.paragraphCount(`д'Артаньян`, currentEOF), 1);
+    assert.strictEqual(paragraphCount(`I won't`, currentEOF), 1);
+    assert.strictEqual(paragraphCount(`д'Артаньян`, currentEOF), 1);
   });
 
   test('number', () => {
-    assert.strictEqual(counter.paragraphCount('They sell 75 different products.', currentEOF), 1);
-    assert.strictEqual(counter.paragraphCount('Account 12345678, Sort Code 01-02-03', currentEOF), 1);
-    assert.strictEqual(counter.paragraphCount('Item 06: 87,334.67', currentEOF), 1);
+    assert.strictEqual(paragraphCount('They sell 75 different products.', currentEOF), 1);
+    assert.strictEqual(paragraphCount('Account 12345678, Sort Code 01-02-03', currentEOF), 1);
+    assert.strictEqual(paragraphCount('Item 06: 87,334.67', currentEOF), 1);
   });
 
 });
@@ -239,7 +239,7 @@ suite('Wordcounter.charCount() without eol chars', () => {
   });
 
   test('Empty line', () => {
-    assert.strictEqual(counter.charCount('', currentEOF), 0);
+    assert.strictEqual(charCount(true, '', currentEOF), 0);
   });
 
   test('Empty lines', () => {
@@ -247,7 +247,7 @@ suite('Wordcounter.charCount() without eol chars', () => {
 
 
 `;
-    assert.strictEqual(counter.charCount(lines, currentEOF), 0);
+    assert.strictEqual(charCount(true, lines, currentEOF), 0);
   });
 
   test('Some lines', () => {
@@ -255,7 +255,7 @@ suite('Wordcounter.charCount() without eol chars', () => {
 567
 
 89`;
-    assert.strictEqual(counter.charCount(lines, currentEOF), 8);
+    assert.strictEqual(charCount(true, lines, currentEOF), 8);
   });
 
 });
