@@ -16,22 +16,22 @@ export interface TextConfig {
   lines: string;
   paragraph: string;
   paragraphs: string;
-  word_delimiter: string;
+  wordDelimiter: string;
   delimiter: string;
-  readingtime: string;
+  readingTime: string;
 }
 
 export interface WordCounterConfiguration {
-  count_words: boolean;
-  count_chars: boolean;
-  count_lines: boolean;
-  count_paragraphs: boolean;
-  readtime: boolean;
-  simple_wordcount: boolean;
-  include_eol_chars: boolean;
+  countWords: boolean;
+  countChars: boolean;
+  countLines: boolean;
+  countParagraphs: boolean;
+  readTime: boolean;
+  simpleWordCount: boolean;
+  includeEolChars: boolean;
   wpm: number;
-  side_left: Counter[];
-  side_right: Counter[];
+  sideLeft: Counter[];
+  sideRight: Counter[];
 }
 
 export interface DisplayData {
@@ -107,7 +107,7 @@ export class WordCounter {
       return;
     }
 
-    let displayData: DisplayData ={} as DisplayData;
+    let displayData: DisplayData = {} as DisplayData;
     if (
       fromSelection &&
       editor.selections.length === 1 &&
@@ -155,19 +155,19 @@ export class WordCounter {
     selections.forEach((selection) => {
       const content = doc.getText(selection.with());
 
-      if (this.config.count_words || this.config.readtime) {
-        words += wordCount(content, this.config.simple_wordcount);
+      if (this.config.countWords || this.config.readTime) {
+        words += wordCount(content, this.config.simpleWordCount);
       }
 
-      if (this.config.count_paragraphs) {
+      if (this.config.countParagraphs) {
         paragraphs += paragraphCount(content, doc.eol);
       }
 
-      if (this.config.count_chars) {
+      if (this.config.countChars) {
         chars += content.length;
       }
 
-      if (this.config.count_lines) {
+      if (this.config.countLines) {
         if (selection.isSingleLine) {
           lines++;
         } else {
@@ -193,19 +193,19 @@ export class WordCounter {
       chars = 0,
       paragraphs = 0,
       lines = 0;
-    if (this.config.count_words || this.config.readtime) {
-      words = wordCount(content, this.config.simple_wordcount);
+    if (this.config.countWords || this.config.readTime) {
+      words = wordCount(content, this.config.simpleWordCount);
     }
 
-    if (this.config.count_paragraphs) {
+    if (this.config.countParagraphs) {
       paragraphs = paragraphCount(content, doc.eol);
     }
 
-    if (this.config.count_chars) {
-      chars = charCount(this.config.include_eol_chars, content, doc.eol);
+    if (this.config.countChars) {
+      chars = charCount(this.config.includeEolChars, content, doc.eol);
     }
 
-    if (this.config.count_lines) {
+    if (this.config.countLines) {
       lines = lineCount(content, hasSelectedText, doc);
     }
 
@@ -220,25 +220,25 @@ export class WordCounter {
   prepareStatusBar(displayData: DisplayData, alignment: StatusBarAlignment) {
     const order =
       alignment === StatusBarAlignment.Left
-        ? this.config.side_left
-        : this.config.side_right;
+        ? this.config.sideLeft
+        : this.config.sideRight;
     const wordText = displayData.words === 1 ? this.text.word : this.text.words;
     const charText = displayData.chars === 1 ? this.text.char : this.text.chars;
     const lineText = displayData.lines === 1 ? this.text.line : this.text.lines;
     const paragraphText =
       displayData.paragraphs === 1 ? this.text.paragraph : this.text.paragraphs;
     const map = {
-      word: `${displayData.words}${this.text.word_delimiter}${wordText}`,
-      char: `${displayData.chars}${this.text.word_delimiter}${charText}`,
-      line: `${displayData.lines}${this.text.word_delimiter}${lineText}`,
-      paragraph: `${displayData.paragraphs}${this.text.word_delimiter}${paragraphText}`,
+      word: `${displayData.words}${this.text.wordDelimiter}${wordText}`,
+      char: `${displayData.chars}${this.text.wordDelimiter}${charText}`,
+      line: `${displayData.lines}${this.text.wordDelimiter}${lineText}`,
+      paragraph: `${displayData.paragraphs}${this.text.wordDelimiter}${paragraphText}`,
     } as Record<Counter, string>;
 
-    if (this.config.readtime && order.includes("readingtime")) {
+    if (this.config.readTime && order.includes("readingtime")) {
       const div = displayData.words / this.config.wpm;
       const m = Math.floor(div);
       const s = Math.round(60 * (div - m));
-      map["readingtime"] = `~${m}m${s}s ${this.text.readingtime}`;
+      map["readingtime"] = `~${m}m${s}s ${this.text.readingTime}`;
     }
 
     return order.map((key) => map[key]).join(this.text.delimiter);
