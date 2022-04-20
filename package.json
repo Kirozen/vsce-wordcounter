@@ -2,7 +2,7 @@
   "name": "wordcounter",
   "displayName": "WordCounter",
   "description": "Complete word counter inspired by ST WordCount plugin",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "markdown": "standard",
   "publisher": "kirozen",
   "icon": "logo/wordcounter.png",

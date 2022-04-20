@@ -1,5 +1,13 @@
 # Change Log
 
+## 2.4.0
+
+* Fix #34: Quickly selecting a paragraph doesn't always count its words accurately
+* Fix #35: Quickly pressing Enter to create new lines causes lines to be counted incorrectly
+* Remove unecessary throttle limit
+* Reduce number of calls to update()
+* Optimize the whole process
+
 ## 2.3.0
 
 * Fix #33: Number of lines doesn't update when using the 'Del' key
