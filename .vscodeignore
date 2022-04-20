@@ -12,3 +12,5 @@ vsc-extension-quickstart.md
 node_modules/**
 webpack.config.js
 logo/wordcounter.svg
+tsconfig.tsbuildinfo
+.mocharc.json
