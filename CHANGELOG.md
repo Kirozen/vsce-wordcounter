@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.4.2
+
+* Multiple fixes
+* Improve performance
+
 ## 2.4.1
 
 * Fix tests
