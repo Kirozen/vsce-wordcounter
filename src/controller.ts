@@ -1,11 +1,4 @@
-import {
-  ConfigurationChangeEvent,
-  Disposable,
-  EndOfLine,
-  TextEditorSelectionChangeEvent,
-  window,
-  workspace,
-} from "vscode";
+import { Disposable, window, workspace } from "vscode";
 import {
   Counter,
   TextConfig,
@@ -16,7 +9,6 @@ import {
 export class WordCounterController {
   wordCounter: WordCounter;
   disposable: Disposable;
-  currentEol?: EndOfLine = EndOfLine.LF;
   enabled: boolean = false;
   languages: string[] = [];
 
@@ -25,25 +17,17 @@ export class WordCounterController {
     this.reloadConfig();
 
     const subscriptions: Disposable[] = [];
-    window.onDidChangeTextEditorSelection(
-      this._onEventTextEditorSelection,
-      this,
-      subscriptions
-    );
-    window.onDidChangeActiveTextEditor(
-      this._onDidChangeActiveTextEditor,
-      this,
-      subscriptions
-    );
+    window.onDidChangeTextEditorSelection(this.onEvent, this, subscriptions);
+    window.onDidChangeActiveTextEditor(this.onEvent, this, subscriptions);
     workspace.onDidChangeConfiguration(
-      this._onEventWhenConfChanged,
+      this.onEventWhenConfChanged,
       this,
       subscriptions
     );
+    workspace.onDidChangeTextDocument(this.onEvent, this, subscriptions);
 
-    if (window.activeTextEditor && this._couldUpdate()) {
-      this._doUpdateComplete();
-    }
+    this.onEvent();
+
     this.disposable = Disposable.from.apply(Disposable, subscriptions);
   }
 
@@ -51,62 +35,25 @@ export class WordCounterController {
     this.disposable.dispose();
   }
 
-  _couldUpdate() {
-    return (
+  private onEvent() {
+    if (
       this.enabled &&
-      window &&
       window.activeTextEditor &&
       (this.languages === null ||
         this.languages.includes(window.activeTextEditor.document.languageId))
-    );
-  }
-
-  _doUpdateComplete() {
-    this._storeCurrentEOL();
-    this.wordCounter.update(false);
-  }
-
-  _doUpdatePartial() {
-    this._storeCurrentEOL();
-    this.wordCounter.update(true);
-  }
-
-  _storeCurrentEOL() {
-    this.currentEol = window.activeTextEditor?.document.eol;
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  _onDidChangeActiveTextEditor(_event: any) {
-    if (this._couldUpdate()) {
-      this._doUpdateComplete();
+    ) {
+      this.wordCounter.update();
     } else {
       this.wordCounter.hide();
     }
   }
 
-  _onEventTextEditorSelection(event: TextEditorSelectionChangeEvent) {
-    if (this._couldUpdate()) {
-      if (event.selections.filter((s) => !s.isEmpty).length > 0) {
-        this._doUpdatePartial();
-      } else {
-        this._doUpdateComplete();
-      }
-    } else {
-      this.wordCounter.hide();
-    }
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  _onEventWhenConfChanged(_event: ConfigurationChangeEvent) {
+  private onEventWhenConfChanged() {
     this.reloadConfig();
-    if (this._couldUpdate()) {
-      this._doUpdateComplete();
-    } else {
-      this.wordCounter.hide();
-    }
+    this.onEvent();
   }
 
-  reloadConfig() {
+  private reloadConfig() {
     const configuration = workspace.getConfiguration("wordcounter");
     this.languages = configuration.get("languages", []);
 
