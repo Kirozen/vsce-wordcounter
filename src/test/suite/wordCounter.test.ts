@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import {
   charCount,
-  lineCount,
   paragraphCount,
   wordCount,
 } from "../../wordCounter";
@@ -105,54 +104,6 @@ describe("wordCount not simple", () => {
 
   it("non-words", () => {
     expect(wordCount("one - two ; three", false)).to.equal(3);
-  });
-});
-
-describe("lineCount", () => {
-  it("latin", () => {
-    const str = `
-      one two three
-      four five
-      `;
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(4);
-  });
-
-  it("cyrillic", () => {
-    const str = `
-      один два три
-      четыре Пять Ёлка
-    `;
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(4);
-  });
-
-  it("mixed", () => {
-    const str = `
-      один two три
-      four Пять ёлка
-    `;
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(4);
-  });
-
-  it("hyphenated", () => {
-    expect(lineCount("test-hyphen", true, {} as vscode.TextDocument)).to.equal(
-      1
-    );
-    expect(lineCount("что-то", true, {} as vscode.TextDocument)).to.equal(1);
-  });
-
-  it("contracted", () => {
-    expect(lineCount(`I won't`, true, {} as vscode.TextDocument)).to.equal(1);
-    const str = `д'Артаньян`;
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(1);
-  });
-
-  it("number", () => {
-    let str = "They sell 75 different products.";
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(1);
-    str = "Account 12345678, Sort Code 01-02-03";
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(1);
-    str = "Item 06: 87,334.67";
-    expect(lineCount(str, true, {} as vscode.TextDocument)).to.equal(1);
   });
 });
 

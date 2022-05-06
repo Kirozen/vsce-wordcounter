@@ -88,7 +88,7 @@ export class WordCounter {
     this.text = text;
   }
 
-  update(fromSelection: boolean = true) {
+  update() {
     if (!this.statusBarItemLeft) {
       this.statusBarItemLeft = window.createStatusBarItem(
         StatusBarAlignment.Left
@@ -108,17 +108,8 @@ export class WordCounter {
     }
 
     let displayData: DisplayData = {} as DisplayData;
-    if (
-      fromSelection &&
-      editor.selections.length === 1 &&
-      !editor.selection.isEmpty
-    ) {
-      displayData = this.countSelectedSimple(editor.document, editor.selection);
-    } else if (fromSelection && editor.selections.length > 1) {
-      displayData = this.countSelectedMultiple(
-        editor.document,
-        editor.selections
-      );
+    if (!editor.selection.isEmpty) {
+      displayData = this.countSelected(editor.document, editor.selections);
     } else {
       displayData = this.countAll(editor.document);
     }
@@ -136,59 +127,8 @@ export class WordCounter {
     this.statusBarItemRight.show();
   }
 
-  countSelectedSimple(doc: TextDocument, selection: Selection) {
-    var content = doc.getText(selection.with());
-    return this.computeDisplayData(doc, content, true);
-  }
-
-  countAll(doc: TextDocument) {
-    var content = doc.getText();
-    return this.computeDisplayData(doc, content, false);
-  }
-
-  countSelectedMultiple(doc: TextDocument, selections: readonly Selection[]) {
-    let words = 0,
-      chars = 0,
-      paragraphs = 0,
-      lines = 0;
-
-    selections.forEach((selection) => {
-      const content = doc.getText(selection.with());
-
-      if (this.config.countWords || this.config.readTime) {
-        words += wordCount(content, this.config.simpleWordCount);
-      }
-
-      if (this.config.countParagraphs) {
-        paragraphs += paragraphCount(content, doc.eol);
-      }
-
-      if (this.config.countChars) {
-        chars += content.length;
-      }
-
-      if (this.config.countLines) {
-        if (selection.isSingleLine) {
-          lines++;
-        } else {
-          lines += selection.end.line - selection.start.line + 1;
-        }
-      }
-    });
-
-    return {
-      words: words,
-      chars: chars,
-      lines: lines,
-      paragraphs: paragraphs,
-    } as DisplayData;
-  }
-
-  computeDisplayData(
-    doc: TextDocument,
-    content: string,
-    hasSelectedText: boolean
-  ) {
+  private countAll(doc: TextDocument) {
+    let content = doc.getText();
     let words = 0,
       chars = 0,
       paragraphs = 0,
@@ -206,7 +146,7 @@ export class WordCounter {
     }
 
     if (this.config.countLines) {
-      lines = lineCount(content, hasSelectedText, doc);
+      lines = doc.lineCount;
     }
 
     return {
@@ -217,7 +157,44 @@ export class WordCounter {
     } as DisplayData;
   }
 
-  prepareStatusBar(displayData: DisplayData, alignment: StatusBarAlignment) {
+  private countSelected(doc: TextDocument, selections: readonly Selection[]) {
+    let words = 0,
+      chars = 0,
+      paragraphs = 0,
+      lines = 0;
+
+    selections.forEach((selection) => {
+      const content = doc.getText(selection.with());
+
+      if (this.config.countWords || this.config.readTime) {
+        words += wordCount(content, this.config.simpleWordCount);
+      }
+
+      if (this.config.countParagraphs) {
+        paragraphs += paragraphCount(content, doc.eol);
+      }
+
+      if (this.config.countChars) {
+        chars += charCount(this.config.includeEolChars, content, doc.eol);
+      }
+
+      if (this.config.countLines) {
+        lines += selection.end.line - selection.start.line + 1;
+      }
+    });
+
+    return {
+      words: words,
+      chars: chars,
+      lines: lines,
+      paragraphs: paragraphs,
+    } as DisplayData;
+  }
+
+  private prepareStatusBar(
+    displayData: DisplayData,
+    alignment: StatusBarAlignment
+  ) {
     const order =
       alignment === StatusBarAlignment.Left
         ? this.config.sideLeft
@@ -266,17 +243,6 @@ export function paragraphCount(content: string, linefeed: EndOfLine) {
       .filter((p) => p.length > 0).length;
   }
   return 0;
-}
-
-export function lineCount(
-  content: string,
-  hasSelectedText: boolean,
-  doc: TextDocument
-) {
-  if (hasSelectedText) {
-    return content.split("\n").length;
-  }
-  return doc.lineCount;
 }
 
 export function wordCount(content: string, simpleWordCount: boolean) {
